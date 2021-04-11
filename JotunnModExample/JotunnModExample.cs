@@ -41,6 +41,8 @@ namespace JotunnModExample
         private bool forceVersionMismatch = false;
         private System.Version currentVersion;
         private bool clonedItemsAdded = false;
+        private GameObject backpackPrefab;
+        private AssetBundle embeddedResourceBundle;
 
         // Init handlers
         private void Awake()
@@ -150,6 +152,9 @@ namespace JotunnModExample
             BlueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/blueprints");
             JotunnLib.Logger.LogInfo(BlueprintRuneBundle);
 
+            embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("capeironbackpack", Assembly.GetExecutingAssembly());
+            backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeIronBackpack.prefab");
+
             // Embedded Resources
             JotunnLib.Logger.LogInfo($"Embedded resources: {string.Join(",", Assembly.GetExecutingAssembly().GetManifestResourceNames())}");
         }
@@ -212,22 +217,21 @@ namespace JotunnModExample
         private void addMockedItems()
         {
             // Load assets from resources
-            Stream assetstream = Assembly.GetExecutingAssembly().GetManifestResourceStream("JotunnModExample.AssetsEmbedded.capeironbackpack");
-            if (assetstream == null) JotunnLib.Logger.LogWarning($"Requested asset stream could not be found.");
-            else
-            {
-                AssetBundle assetBundle = AssetBundle.LoadFromStream(assetstream);
-                GameObject prefab = assetBundle.LoadAsset<GameObject>("Assets/Evie/CapeIronBackpack.prefab");
-                if (!prefab) JotunnLib.Logger.LogWarning($"Failed to load asset from bundle: {assetBundle}");
+            //Stream assetstream = Assembly.GetExecutingAssembly().GetManifestResourceStream("JotunnModExample.AssetsEmbedded.capeironbackpack");
+            //if (assetstream == null) JotunnLib.Logger.LogWarning($"Requested asset stream could not be found.");
+            //else
+            //{
+                
+                if (!backpackPrefab) JotunnLib.Logger.LogWarning($"Failed to load asset from bundle: {embeddedResourceBundle}");
                 else
                 {
                     // Create and add a custom item
-                    CustomItem CI = new CustomItem(prefab, true);
+                    CustomItem CI = new CustomItem(backpackPrefab, true);
                     ItemManager.Instance.AddItem(CI);
 
                     // Create and add a custom recipe
                     Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
-                    recipe.m_item = prefab.GetComponent<ItemDrop>();
+                    recipe.m_item = backpackPrefab.GetComponent<ItemDrop>();
                     recipe.m_craftingStation = Mock<CraftingStation>.Create("piece_workbench");
                     var ingredients = new List<Piece.Requirement>
                     {
@@ -242,9 +246,9 @@ namespace JotunnModExample
                     // Enable BoneReorder
                     BoneReorder.ApplyOnEquipmentChanged();
                 }
-                assetBundle.Unload(false);
+                embeddedResourceBundle.Unload(false);
             }
-        }
+        //}
 
         // Add a custom item from an "empty" prefab
         private void addEmptyItems()
@@ -339,9 +343,23 @@ namespace JotunnModExample
         void addSkills()
         {
             // Test adding a skill with a texture
-            Texture2D testSkillTex = AssetUtils.LoadTexture("JotunnModExample/Assets/test_tex.jpg");
-            Sprite testSkillSprite = Sprite.Create(testSkillTex, new Rect(0f, 0f, testSkillTex.width, testSkillTex.height), Vector2.zero);
+            Sprite testSkillSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
             TestSkillType = SkillManager.Instance.AddSkill("com.jotunnlib.JotunnModExample.testskill", "TestingSkill", "A nice testing skill!", 1f, testSkillSprite);
+            
+            
+            // Test adding a skill with a texture
+            //TestSkillType = SkillManager.Instance.AddSkill("com.jotunnlib.JotunnModExample.testskill", "TestingSkill", "A nice testing skill!", 1f, testSkillSprite);
+            TestSkillType = SkillManager.Instance.AddSkill(new SkillConfig
+            {
+                Identifier = "com.jotunnlib.JotunnModExample.testskill",
+                Name = "TestingSkill",
+                Description = "A nice testing skill!",
+                Icon = testSkillSprite,
+                IncreaseStep = 1f
+            }, true);
+            Logger.LogDebug(TestSkillType);
+            //if(!TestSkillType) Logger.
+
         }
 
         // Create some sample configuration values to check server sync
