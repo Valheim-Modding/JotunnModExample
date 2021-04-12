@@ -53,7 +53,7 @@ namespace JotunnModExample
             loadAssets();
             addItemsWithConfigs();
             addMockedItems();
-            addEmptyItems();
+            addEmptyPiece();
             addCommands();
             addSkills();
             createConfigValues();
@@ -164,7 +164,38 @@ namespace JotunnModExample
         {
             // Add a custom piece table
             PieceManager.Instance.AddPieceTable(BlueprintRuneBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
+            CreateBlueprintRune();
+            CreateRunePieces();
 
+            // Don't forget to unload the bundle to free the resources
+            BlueprintRuneBundle.Unload(false);
+        }
+
+        private void CreateRunePieces()
+        {
+            // Create and add custom pieces
+            GameObject makebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("make_blueprint");
+            CustomPiece makebp = new CustomPiece(makebp_prefab, new PieceConfig
+            {
+                PieceTable = "_BlueprintPieceTable",
+                AllowedInDungeons = false
+            });
+            PieceManager.Instance.AddPiece(makebp);
+            GameObject placebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("piece_blueprint");
+            CustomPiece placebp = new CustomPiece(placebp_prefab, new PieceConfig
+            {
+                PieceTable = "_BlueprintPieceTable",
+                AllowedInDungeons = true,
+                Requirements = new PieceRequirementConfig[]
+                {
+                    new PieceRequirementConfig {Item = "Wood", Amount = 2}
+                }
+            });
+            PieceManager.Instance.AddPiece(placebp);
+        }
+
+        private void CreateBlueprintRune()
+        {
             // Create and add a custom item
             // CustomItem can be instantiated with an AssetBundle and will load the prefab from there
             CustomItem rune = new CustomItem(BlueprintRuneBundle, "BlueprintRune", false);
@@ -181,37 +212,8 @@ namespace JotunnModExample
                 }
             });
             ItemManager.Instance.AddRecipe(runeRecipe);
-
-            // Create and add custom pieces
-            GameObject makebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("make_blueprint");
-            CustomPiece makebp = new CustomPiece(makebp_prefab, new PieceConfig
-            {
-                PieceTable = "_BlueprintPieceTable"
-            });
-            PieceManager.Instance.AddPiece(makebp);
-            GameObject placebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("piece_blueprint");
-            CustomPiece placebp = new CustomPiece(placebp_prefab, new PieceConfig
-            {
-                PieceTable = "_BlueprintPieceTable",
-                AllowedInDungeons = true,
-                Requirements = new PieceRequirementConfig[]
-                {
-                    new PieceRequirementConfig {Item = "Wood", Amount = 2}
-                }
-            });
-            PieceManager.Instance.AddPiece(placebp);
-
-            // Add localizations
-            TextAsset[] textAssets = BlueprintRuneBundle.LoadAllAssets<TextAsset>();
-            foreach (var textAsset in textAssets)
-            {
-                var lang = textAsset.name.Replace(".json", null);
-                LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
-            }
-
-            // Don't forget to unload the bundle to free the resources
-            BlueprintRuneBundle.Unload(false);
         }
+
 
         // Add new items with mocked prefabs
         private void addMockedItems()
@@ -251,7 +253,7 @@ namespace JotunnModExample
         //}
 
         // Add a custom item from an "empty" prefab
-        private void addEmptyItems()
+        private void addEmptyPiece()
         {
             CustomPiece CP = new CustomPiece("$piece_lul", "Hammer");
             var piece = CP.Piece;
@@ -307,7 +309,7 @@ namespace JotunnModExample
                     },
                     new Piece.Requirement()
                     {
-                        m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("Wood"),
+                        m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("CustomWood"),
                         m_amount = 1
                     }
             };
@@ -336,6 +338,13 @@ namespace JotunnModExample
                     { "piece_lul", "Lulz" }
                 }
             });
+
+             TextAsset[] textAssets = BlueprintRuneBundle.LoadAllAssets<TextAsset>();
+            foreach (var textAsset in textAssets)
+            {
+                var lang = textAsset.name.Replace(".json", null);
+                LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
+            }
         }
 
         // Register new console commands
