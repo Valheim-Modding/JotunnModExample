@@ -278,12 +278,23 @@ namespace JotunnModExample
                 itemDrop.m_itemData.m_shared.m_description = "$item_evilsword_desc";
 
                 // Create and add a recipe for the copied item
-                Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
-                recipe.name = "Recipe_EvilSword";
-                recipe.m_item = itemDrop;
-                recipe.m_craftingStation = PrefabManager.Cache.GetPrefab<CraftingStation>("piece_workbench");
-                recipe.m_resources = new Piece.Requirement[]
-                {
+                recipeEvilSword(itemDrop);
+
+                clonedItemsAdded = true;
+            }
+
+            // Hook is prefix, we just need to be able to get the vanilla prefabs, JotunnLib registers them in ObjectDB
+            orig(self, other);
+        }
+
+        private static void recipeEvilSword(ItemDrop itemDrop)
+        {
+            Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
+            recipe.name = "Recipe_EvilSword";
+            recipe.m_item = itemDrop;
+            recipe.m_craftingStation = PrefabManager.Cache.GetPrefab<CraftingStation>("piece_workbench");
+            recipe.m_resources = new Piece.Requirement[]
+            {
                     new Piece.Requirement()
                     {
                         m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("Stone"),
@@ -294,15 +305,9 @@ namespace JotunnModExample
                         m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("Wood"),
                         m_amount = 1
                     }
-                };
-                CustomRecipe CR = new CustomRecipe(recipe, false, false);
-                ItemManager.Instance.AddRecipe(CR);
-
-                clonedItemsAdded = true;
-            }
-
-            // Hook is prefix, we just need to be able to get the vanilla prefabs, JotunnLib registers them in ObjectDB
-            orig(self, other);
+            };
+            CustomRecipe CR = new CustomRecipe(recipe, false, false);
+            ItemManager.Instance.AddRecipe(CR);
         }
 
         // Registers localizations with configs
