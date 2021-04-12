@@ -268,6 +268,12 @@ namespace JotunnModExample
             // You want that to run only once, JotunnLib has the item cached for the game session
             if (!clonedItemsAdded)
             {
+                //Create a custom resource
+                CustomItem recipeComponent = new CustomItem("CustomWood", "Wood");
+                ItemManager.Instance.AddItem(recipeComponent);
+                recipeComponent.ItemDrop.m_itemData.m_shared.m_name = "$item_customWood";
+                recipeComponent.ItemDrop.m_itemData.m_shared.m_description = "$item_customWood_desc";
+
                 // Create and add a custom item based on SwordBlackmetal
                 CustomItem CI = new CustomItem("EvilSword", "SwordBlackmetal");
                 ItemManager.Instance.AddItem(CI);
@@ -277,7 +283,6 @@ namespace JotunnModExample
                 itemDrop.m_itemData.m_shared.m_name = "$item_evilsword";
                 itemDrop.m_itemData.m_shared.m_description = "$item_evilsword_desc";
 
-                // Create and add a recipe for the copied item
                 recipeEvilSword(itemDrop);
 
                 clonedItemsAdded = true;
