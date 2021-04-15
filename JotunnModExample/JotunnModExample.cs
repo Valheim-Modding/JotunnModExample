@@ -1,33 +1,35 @@
-﻿// JotunnModExample
+﻿// JotunnModStub
 // a Valheim mod skeleton using JötunnLib
 // 
-// File:    JotunnModExample.cs
-// Project: JotunnModExample
+// File:    JotunnModStub.cs
+// Project: JotunnModStub
 
-using System;
-using System.Reflection;
 using BepInEx;
 using UnityEngine;
-using JotunnModExample.ConsoleCommands;
-using JotunnLib.Managers;
+using BepInEx.Configuration;
 using JotunnLib.Utils;
+using System.Reflection;
+using JotunnLib.Managers;
+using Logger = JotunnLib.Logger;
 using JotunnLib.Configs;
+using System;
 using JotunnLib.Entities;
 using System.Collections.Generic;
-using BepInEx.Configuration;
-using Version = System.Version;
 using System.IO;
+using JotunnModExample.ConsoleCommands;
 
 namespace JotunnModExample
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(JotunnLib.Main.ModGuid)]
-    [NetworkCompatibilty(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Build)]
-    internal class JotunnModExamplePlugin : BaseUnityPlugin
+    [NetworkCompatibilty(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
+    internal class JotunnModExample : BaseUnityPlugin
     {
-        public const string PluginGUID = "com.jotunn.jotunnmodexample";
+        public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "0.0.1";
+        public const string PluginVersion = "1.0.0";
+        public static new JotunnLib.Logger Logger;
+        public static new ConfigFile Config;
 
         public AssetBundle TestAssets;
         public AssetBundle BlueprintRuneBundle;
@@ -38,32 +40,27 @@ namespace JotunnModExample
         private Texture2D testTex;
         private Sprite testSprite;
         private GameObject testPanel;
-        private bool forceVersionMismatch = false;
-        private System.Version currentVersion;
         private bool clonedItemsAdded = false;
         private GameObject backpackPrefab;
         private AssetBundle embeddedResourceBundle;
 
-        // Init handlers
         private void Awake()
         {
+            Config = base.Config;
+
             InputManager.Instance.InputRegister += registerInputs;
             LocalizationManager.Instance.LocalizationRegister += registerLocalization;
 
+            // Do all your init stuff here
             loadAssets();
             addItemsWithConfigs();
-            addMockedItems();
             addEmptyPiece();
+            addMockedItems();
             addCommands();
             addSkills();
             createConfigValues();
-
-            // Hook ObjectDB.CopyOtherDB to add custom items cloned from vanilla items
             On.ObjectDB.CopyOtherDB += addClonedItems;
 
-            // Get current version for the mod compatibility test
-            currentVersion = new System.Version(Info.Metadata.Version.ToString());
-            setVersion();
         }
 
         // Called every frame
@@ -87,8 +84,9 @@ namespace JotunnModExample
             }
 
 #if DEBUG
-            if (Input.GetKeyDown(KeyCode.F6))
-            { // Set a breakpoint here to break on F6 key press
+            if (Input.GetKeyDown(KeyCode.F8))
+            {
+                Player.m_localPlayer.RaiseSkill(TestSkillType, 1);
             }
 #endif
         }
@@ -130,14 +128,13 @@ namespace JotunnModExample
             }
         }
 
-        // Add custom key bindings
         private void registerInputs(object sender, EventArgs e)
         {
-            InputManager.Instance.AddButton("JotunnModExample_Menu", KeyCode.Insert);
-            InputManager.Instance.AddButton("GUIManagerTest", KeyCode.F8);
+            InputManager.Instance.AddButton(PluginGUID, "JotunnModExample_Menu", KeyCode.Insert);
+            InputManager.Instance.AddButton(PluginGUID, "GUIManagerTest", KeyCode.F7);
         }
 
-        // Load assets
+        // Various forms of asset loading
         private void loadAssets()
         {
             // Load texture
@@ -152,119 +149,16 @@ namespace JotunnModExample
             BlueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/blueprints");
             JotunnLib.Logger.LogInfo(BlueprintRuneBundle);
 
-            embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("capeironbackpack", Assembly.GetExecutingAssembly());
-            backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeIronBackpack.prefab");
+            //Load embedded resources
+            JotunnLib.Logger.LogInfo($"Embedded resources: {string.Join(",", Assembly.GetExecutingAssembly().GetManifestResourceNames())}");
+            embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks1", Assembly.GetExecutingAssembly());
+            backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
 
             // Embedded Resources
-            JotunnLib.Logger.LogInfo($"Embedded resources: {string.Join(",", Assembly.GetExecutingAssembly().GetManifestResourceNames())}");
+
         }
 
-        // Add new Items with item Configs
-        private void addItemsWithConfigs()
-        {
-            // Add a custom piece table
-            PieceManager.Instance.AddPieceTable(BlueprintRuneBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
-            CreateBlueprintRune();
-            CreateRunePieces();
-
-            // Don't forget to unload the bundle to free the resources
-            BlueprintRuneBundle.Unload(false);
-        }
-
-        private void CreateRunePieces()
-        {
-            // Create and add custom pieces
-            GameObject makebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("make_blueprint");
-            CustomPiece makebp = new CustomPiece(makebp_prefab, new PieceConfig
-            {
-                PieceTable = "_BlueprintPieceTable",
-                AllowedInDungeons = false
-            });
-            PieceManager.Instance.AddPiece(makebp);
-            GameObject placebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("piece_blueprint");
-            CustomPiece placebp = new CustomPiece(placebp_prefab, new PieceConfig
-            {
-                PieceTable = "_BlueprintPieceTable",
-                AllowedInDungeons = true,
-                Requirements = new PieceRequirementConfig[]
-                {
-                    new PieceRequirementConfig {Item = "Wood", Amount = 2}
-                }
-            });
-            PieceManager.Instance.AddPiece(placebp);
-        }
-
-        private void CreateBlueprintRune()
-        {
-            // Create and add a custom item
-            // CustomItem can be instantiated with an AssetBundle and will load the prefab from there
-            CustomItem rune = new CustomItem(BlueprintRuneBundle, "BlueprintRune", false);
-            ItemManager.Instance.AddItem(rune);
-
-            // Create and add a recipe for the custom item
-            CustomRecipe runeRecipe = new CustomRecipe(new RecipeConfig()
-            {
-                Item = "BlueprintRune",
-                Amount = 1,
-                Requirements = new PieceRequirementConfig[]
-                {
-                    new PieceRequirementConfig {Item = "Stone", Amount = 1}
-                }
-            });
-            ItemManager.Instance.AddRecipe(runeRecipe);
-        }
-
-
-        // Add new items with mocked prefabs
-        private void addMockedItems()
-        {
-            // Load assets from resources
-            //Stream assetstream = Assembly.GetExecutingAssembly().GetManifestResourceStream("JotunnModExample.AssetsEmbedded.capeironbackpack");
-            //if (assetstream == null) JotunnLib.Logger.LogWarning($"Requested asset stream could not be found.");
-            //else
-            //{
-                
-                if (!backpackPrefab) JotunnLib.Logger.LogWarning($"Failed to load asset from bundle: {embeddedResourceBundle}");
-                else
-                {
-                    // Create and add a custom item
-                    CustomItem CI = new CustomItem(backpackPrefab, true);
-                    ItemManager.Instance.AddItem(CI);
-
-                    // Create and add a custom recipe
-                    Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
-                    recipe.m_item = backpackPrefab.GetComponent<ItemDrop>();
-                    recipe.m_craftingStation = Mock<CraftingStation>.Create("piece_workbench");
-                    var ingredients = new List<Piece.Requirement>
-                    {
-                        MockRequirement.Create("LeatherScraps", 10),
-                        MockRequirement.Create("DeerHide", 2),
-                        MockRequirement.Create("Iron", 4),
-                    };
-                    recipe.m_resources = ingredients.ToArray();
-                    CustomRecipe CR = new CustomRecipe(recipe, true, true);
-                    ItemManager.Instance.AddRecipe(CR);
-
-                    // Enable BoneReorder
-                    BoneReorder.ApplyOnEquipmentChanged();
-                }
-                embeddedResourceBundle.Unload(false);
-            }
-        //}
-
-        // Add a custom item from an "empty" prefab
-        private void addEmptyPiece()
-        {
-            CustomPiece CP = new CustomPiece("$piece_lul", "Hammer");
-            var piece = CP.Piece;
-            piece.m_icon = testSprite;
-            var prefab = CP.PiecePrefab;
-            prefab.GetComponent<MeshRenderer>().material.mainTexture = testTex;
-            PieceManager.Instance.AddPiece(CP);
-        }
-
-        // Add new items as copies of vanilla items - just works when vanilla prefabs are already loaded (ObjectDB.CopyOtherDB for example)
-        // You can use the Cache of the PrefabManager in here
+        // Implementation of cloned items
         private void addClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
         {
             // You want that to run only once, JotunnLib has the item cached for the game session
@@ -294,8 +188,80 @@ namespace JotunnModExample
             orig(self, other);
         }
 
+        // Add new assets via item Configs
+        private void addItemsWithConfigs()
+        {
+            // Add a custom piece table
+            PieceManager.Instance.AddPieceTable(BlueprintRuneBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
+            CreateBlueprintRune();
+            CreateRunePieces();
+
+            // Don't forget to unload the bundle to free the resources
+            BlueprintRuneBundle.Unload(false);
+        }
+
+        //Implementation of items and recipes via configs
+        private void CreateBlueprintRune()
+        {
+            // Create and add a custom item
+            var rune_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("BlueprintRune");
+            var rune = new CustomItem(rune_prefab, fixReference: false,
+                new ItemConfig
+                {
+                    Amount = 1,
+                    Requirements = new[]
+                    {
+                        new RequirementConfig { Item = "Stone", Amount = 1 }
+                    }
+                });
+            ItemManager.Instance.AddItem(rune);
+        }
+
+        //Implementation of stub objects
+        private void addEmptyPiece()
+        {
+            CustomPiece CP = new CustomPiece("$piece_lul", "Hammer");
+            if (CP != null)
+            {
+                var piece = CP.Piece;
+                piece.m_icon = testSprite;
+                var prefab = CP.PiecePrefab;
+                prefab.GetComponent<MeshRenderer>().material.mainTexture = testTex;
+                PieceManager.Instance.AddPiece(CP);
+            }
+        }
+
+        //Implementation of pieces via configs.
+        private void CreateRunePieces()
+        {
+            // Create and add custom pieces
+            var makebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("make_blueprint");
+            var makebp = new CustomPiece(makebp_prefab,
+                new PieceConfig
+                {
+                    PieceTable = "_BlueprintPieceTable"
+                });
+            PieceManager.Instance.AddPiece(makebp);
+
+            var placebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("piece_blueprint");
+            var placebp = new CustomPiece(placebp_prefab,
+                new PieceConfig
+                {
+                    PieceTable = "_BlueprintPieceTable",
+                    AllowedInDungeons = true,
+                    Requirements = new[]
+                    {
+                        new RequirementConfig { Item = "Wood", Amount = 2 }
+                    }
+                });
+            PieceManager.Instance.AddPiece(placebp);
+            blueprintRuneLocalizations();
+        }
+
+        //Implementation of assets via using manual recipe creation and prefab cache's
         private static void recipeEvilSword(ItemDrop itemDrop)
         {
+            // Create and add a recipe for the copied item
             Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
             recipe.name = "Recipe_EvilSword";
             recipe.m_item = itemDrop;
@@ -317,7 +283,37 @@ namespace JotunnModExample
             ItemManager.Instance.AddRecipe(CR);
         }
 
-        // Registers localizations with configs
+        //Implementation of assets using mocks, adding recipe's manually without the config abstraction
+        private void addMockedItems()
+        {
+            if (!backpackPrefab) JotunnLib.Logger.LogWarning($"Failed to load asset from bundle: {embeddedResourceBundle}");
+            else
+            {
+                // Create and add a custom item
+                CustomItem CI = new CustomItem(backpackPrefab, true);
+                ItemManager.Instance.AddItem(CI);
+
+                //Create and add a custom recipe
+                Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
+                recipe.m_item = backpackPrefab.GetComponent<ItemDrop>();
+                recipe.m_craftingStation = Mock<CraftingStation>.Create("piece_workbench");
+                var ingredients = new List<Piece.Requirement>
+                {
+                    MockRequirement.Create("LeatherScraps", 10),
+                    MockRequirement.Create("DeerHide", 2),
+                    MockRequirement.Create("Iron", 4),
+                };
+                recipe.m_resources = ingredients.ToArray();
+                CustomRecipe CR = new CustomRecipe(recipe, true, true);
+                ItemManager.Instance.AddRecipe(CR);
+
+                //Enable BoneReorder
+                BoneReorder.ApplyOnEquipmentChanged();
+            }
+            embeddedResourceBundle.Unload(false);
+        }
+
+        //A manual implementation of localisation.
         void registerLocalization(object sender, EventArgs e)
         {
             // Add translations for the custom item in addClonedItems
@@ -338,13 +334,32 @@ namespace JotunnModExample
                     { "piece_lul", "Lulz" }
                 }
             });
+        }
 
-             TextAsset[] textAssets = BlueprintRuneBundle.LoadAllAssets<TextAsset>();
+        //Add localisations from asset bundles
+        private void blueprintRuneLocalizations()
+        {
+            TextAsset[] textAssets = BlueprintRuneBundle.LoadAllAssets<TextAsset>();
             foreach (var textAsset in textAssets)
             {
                 var lang = textAsset.name.Replace(".json", null);
                 LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
             }
+        }
+
+        //Add a new test skill
+        void addSkills()
+        {
+            // Test adding a skill with a texture
+            Sprite testSkillSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
+            TestSkillType = SkillManager.Instance.AddSkill(new SkillConfig
+            {
+                Identifier = "com.jotunnlib.JotunnModExample.testskill",
+                Name = "TestingSkill",
+                Description = "A nice testing skill!",
+                Icon = testSkillSprite,
+                IncreaseStep = 1f
+            });
         }
 
         // Register new console commands
@@ -358,71 +373,18 @@ namespace JotunnModExample
             CommandManager.Instance.AddConsoleCommand(new BetterSpawnCommand());
         }
 
-        // Register new skills
-        void addSkills()
-        {
-            // Test adding a skill with a texture
-            Sprite testSkillSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
-            TestSkillType = SkillManager.Instance.AddSkill("com.jotunnlib.JotunnModExample.testskill", "TestingSkill", "A nice testing skill!", 1f, testSkillSprite);
-            
-            
-            // Test adding a skill with a texture
-            //TestSkillType = SkillManager.Instance.AddSkill("com.jotunnlib.JotunnModExample.testskill", "TestingSkill", "A nice testing skill!", 1f, testSkillSprite);
-            TestSkillType = SkillManager.Instance.AddSkill(new SkillConfig
-            {
-                Identifier = "com.jotunnlib.JotunnModExample.testskill",
-                Name = "TestingSkill",
-                Description = "A nice testing skill!",
-                Icon = testSkillSprite,
-                IncreaseStep = 1f
-            }, true);
-            Logger.LogDebug(TestSkillType);
-            //if(!TestSkillType) Logger.
-
-        }
-
         // Create some sample configuration values to check server sync
         private void createConfigValues()
         {
             Config.SaveOnConfigSet = true;
 
+            //Here we showcase BepInEx's configuration flexibility. This is nothing to do we JVL, however we do provide an interface that is capable of respecting the configuration parameters detailed here.
             Config.Bind("JotunnLibTest", "StringValue1", "StringValue", new ConfigDescription("Server side string", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            Config.Bind("JotunnLibTest", "FloatValue1", 750f, new ConfigDescription("Server side float", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("JotunnLibTest", "FloatValue1", 750f, new ConfigDescription("Server side float", new AcceptableValueRange<float>(0f, 1000f), new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("JotunnLibTest", "IntegerValue1", 200, new ConfigDescription("Server side integer", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("JotunnLibTest", "BoolValue1", false, new ConfigDescription("Server side bool", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("JotunnLibTest", "KeycodeValue", KeyCode.F10,
                 new ConfigDescription("Server side Keycode", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
-
-            // Add client config to test ModCompatibility
-            Config.Bind("JotunnLibTest", "EnableVersionMismatch", false, new ConfigDescription("Enable to test ModCompatibility module", null));
-            forceVersionMismatch = (bool)Config["JotunnLibTest", "EnableVersionMismatch"].BoxedValue;
-            Config.SettingChanged += Config_SettingChanged;
-        }
-
-        // React on changed settings
-        private void Config_SettingChanged(object sender, BepInEx.Configuration.SettingChangedEventArgs e)
-        {
-            if (e.ChangedSetting.Definition.Section == "JotunnLibTest" && e.ChangedSetting.Definition.Key == "EnableVersionMismatch")
-            {
-                forceVersionMismatch = (bool)e.ChangedSetting.BoxedValue;
-            }
-        }
-
-        // Set version of the plugin for the mod compatibility test
-        private void setVersion()
-        {
-            var propinfo = Info.Metadata.GetType().GetProperty("Version", BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
-
-            // Change version number of this module if test is enabled
-            if (forceVersionMismatch)
-            {
-                System.Version v = new System.Version(0, 0, 0);
-                propinfo.SetValue(this.Info.Metadata, v, null);
-            }
-            else
-            {
-                propinfo.SetValue(Info.Metadata, currentVersion, null);
-            }
         }
     }
 }
