@@ -49,7 +49,7 @@ namespace JotunnModExample
             Config = base.Config;
 
             InputManager.Instance.InputRegister += registerInputs;
-            LocalizationManager.Instance.LocalizationRegister += registerLocalization;
+            registerLocalization();
 
             // Do all your init stuff here
             loadAssets();
@@ -314,7 +314,7 @@ namespace JotunnModExample
         }
 
         //A manual implementation of localisation.
-        void registerLocalization(object sender, EventArgs e)
+        void registerLocalization()
         {
             // Add translations for the custom item in addClonedItems
             LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
