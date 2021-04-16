@@ -17,6 +17,7 @@ using JotunnLib.Entities;
 using System.Collections.Generic;
 using System.IO;
 using JotunnModExample.ConsoleCommands;
+using static JotunnLib.Utils.ExposedGameObjectExtensions;
 
 namespace JotunnModExample
 {
@@ -86,7 +87,8 @@ namespace JotunnModExample
 #if DEBUG
             if (Input.GetKeyDown(KeyCode.F8))
             {
-                Player.m_localPlayer.RaiseSkill(TestSkillType, 1);
+                //OrNull respects monobehaviour op_equality for null propagation / coalescing 
+                Player.m_localPlayer.OrNull()?.RaiseSkill(TestSkillType, 1);
             }
 #endif
         }
