@@ -37,9 +37,8 @@ namespace JotunnModExample
         private AssetBundle embeddedResourceBundle;
 
         private Skills.SkillType TestSkillType = 0;
-
-        private bool showMenu = false;
-        private bool showGUIButton = false;
+            
+        private bool showGUI = false;
 
         private Texture2D testTex;
         private Sprite testSprite;
@@ -83,35 +82,22 @@ namespace JotunnModExample
                 // If we hold the button down, it won't spam toggle our menu.
                 if (ZInput.GetButtonDown("JotunnModExample_Menu"))
                 {
-                    showMenu = !showMenu;
-                }
-
-                if (ZInput.GetButtonDown("GUIManagerTest"))
-                {
-                    showGUIButton = !showGUIButton;
+                    showGUI = !showGUI;
                 }
             }
 
-#if DEBUG
-            if (Input.GetKeyDown(KeyCode.F8))
+            // Use the name of the ButtonConfig to identify the button pressed
+            if (ZInput.GetButtonDown(evilSwordSpecial.Name) && MessageHud.instance.m_msgQeue.Count == 0)
             {
-                // OrNull respects monobehaviour op_equality for null propagation / coalescing 
-                Player.m_localPlayer.OrNull()?.RaiseSkill(TestSkillType, 1);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$evilsword_beevilmessage");
             }
-#endif
         }
 
         // Called every frame for rendering and handling GUI events
         private void OnGUI()
         {
-            // Display a test box if enabled
-            if (showMenu)
-            {
-                GUI.Box(new Rect(40, 40, 150, 250), "JotunnModExample");
-            }
-
             // Display an example panel with button if enabled
-            if (showGUIButton)
+            if (showGUI)
             {
                 if (testPanel == null)
                 {
@@ -136,7 +122,7 @@ namespace JotunnModExample
                     }
                 }
                 testPanel.SetActive(!testPanel.activeSelf);
-                showGUIButton = false;
+                showGUI = false;
             }
         }
 
@@ -186,7 +172,6 @@ namespace JotunnModExample
         {
             // Add key bindings on the fly
             InputManager.Instance.AddButton(PluginGUID, "JotunnModExample_Menu", KeyCode.Insert);
-            InputManager.Instance.AddButton(PluginGUID, "GUIManagerTest", KeyCode.F8);
 
             // Add key bindings backed by a config value
             // Create a ButtonConfig to also add it as a custom key hint in AddClonedItems
