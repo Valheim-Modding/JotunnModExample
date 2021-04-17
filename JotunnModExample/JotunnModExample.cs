@@ -30,7 +30,6 @@ namespace JotunnModExample
         public const string PluginName = "JotunnModExample";
         public const string PluginVersion = "1.0.0";
         public static new JotunnLib.Logger Logger;
-        public static new ConfigFile Config;
 
         private AssetBundle TestAssets;
         private AssetBundle BlueprintRuneBundle;
@@ -52,8 +51,6 @@ namespace JotunnModExample
 
         private void Awake()
         {
-            Config = base.Config;
-
             // Load, create and init your custom mod stuff
             CreateConfigValues();
             LoadAssets();
