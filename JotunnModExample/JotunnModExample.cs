@@ -55,7 +55,7 @@ namespace JotunnModExample
         {
             Config = base.Config;
 
-            // Do all your init stuff here
+            // Load, create and init your custom mod stuff
             CreateConfigValues();
             LoadAssets();
             AddInputs();
@@ -66,6 +66,8 @@ namespace JotunnModExample
             AddItemsWithConfigs();
             AddEmptyPiece();
             AddMockedItems();
+
+            // Hook ObjectDB.CopyOtherDB to add custom items cloned from vanilla items
             On.ObjectDB.CopyOtherDB += AddClonedItems;
 
         }
@@ -250,10 +252,6 @@ namespace JotunnModExample
             StatusEffect effect = ScriptableObject.CreateInstance<StatusEffect>();
             effect.name = "EvilStatusEffect";
             effect.m_name = "$evilsword_effectname";
-            effect.m_activationAnimation = null;
-            effect.m_cooldownIcon = false;
-            effect.m_flashIcon = false;
-            effect.m_attributes = StatusEffect.StatusAttribute.None;
             effect.m_icon = AssetUtils.LoadSpriteFromFile("JotunnModExample/Assets/reee.png");
             effect.m_startMessageType = MessageHud.MessageType.Center;
             effect.m_startMessage = "$evilsword_effectstart";
