@@ -32,35 +32,41 @@ namespace JotunnModExample
         public static new JotunnLib.Logger Logger;
         public static new ConfigFile Config;
 
-        public AssetBundle TestAssets;
-        public AssetBundle BlueprintRuneBundle;
-        public Skills.SkillType TestSkillType = 0;
+        private AssetBundle TestAssets;
+        private AssetBundle BlueprintRuneBundle;
+        private AssetBundle embeddedResourceBundle;
+
+        private Skills.SkillType TestSkillType = 0;
 
         private bool showMenu = false;
         private bool showGUIButton = false;
+
         private Texture2D testTex;
         private Sprite testSprite;
         private GameObject testPanel;
-        private bool clonedItemsAdded = false;
+
+        private bool clonedItemsProcessed = false;
         private GameObject backpackPrefab;
-        private AssetBundle embeddedResourceBundle;
+
+        private ButtonConfig evilSwordSpecial;
+        private CustomStatusEffect evilSwordEffect;
 
         private void Awake()
         {
             Config = base.Config;
 
-            InputManager.Instance.InputRegister += registerInputs;
-            registerLocalization();
-
             // Do all your init stuff here
-            loadAssets();
-            addItemsWithConfigs();
-            addEmptyPiece();
-            addMockedItems();
-            addCommands();
-            addSkills();
-            createConfigValues();
-            On.ObjectDB.CopyOtherDB += addClonedItems;
+            CreateConfigValues();
+            LoadAssets();
+            AddInputs();
+            AddLocalizations();
+            AddCommands();
+            AddSkills();
+            AddStatusEffects();
+            AddItemsWithConfigs();
+            AddEmptyPiece();
+            AddMockedItems();
+            On.ObjectDB.CopyOtherDB += AddClonedItems;
 
         }
 
@@ -87,20 +93,22 @@ namespace JotunnModExample
 #if DEBUG
             if (Input.GetKeyDown(KeyCode.F8))
             {
-                //OrNull respects monobehaviour op_equality for null propagation / coalescing 
+                // OrNull respects monobehaviour op_equality for null propagation / coalescing 
                 Player.m_localPlayer.OrNull()?.RaiseSkill(TestSkillType, 1);
             }
 #endif
         }
 
-        // Display our GUI if enabled
+        // Called every frame for rendering and handling GUI events
         private void OnGUI()
         {
+            // Display a test box if enabled
             if (showMenu)
             {
                 GUI.Box(new Rect(40, 40, 150, 250), "JotunnModExample");
             }
 
+            // Display an example panel with button if enabled
             if (showGUIButton)
             {
                 if (testPanel == null)
@@ -130,14 +138,25 @@ namespace JotunnModExample
             }
         }
 
-        private void registerInputs(object sender, EventArgs e)
+        // Create some sample configuration values to check server sync
+        private void CreateConfigValues()
         {
-            InputManager.Instance.AddButton(PluginGUID, "JotunnModExample_Menu", KeyCode.Insert);
-            InputManager.Instance.AddButton(PluginGUID, "GUIManagerTest", KeyCode.F7);
+            Config.SaveOnConfigSet = true;
+
+            //Here we showcase BepInEx's configuration flexibility. This is nothing to do we JVL, however we do provide an interface that is capable of respecting the configuration parameters detailed here.
+            Config.Bind("Server config", "StringValue1", "StringValue", new ConfigDescription("Server side string", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("Server config", "FloatValue1", 750f, new ConfigDescription("Server side float", new AcceptableValueRange<float>(0f, 1000f), new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("Server config", "IntegerValue1", 200, new ConfigDescription("Server side integer", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("Server config", "BoolValue1", false, new ConfigDescription("Server side bool", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("Server config", "KeycodeValue", KeyCode.F10,
+                new ConfigDescription("Server side Keycode", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+
+            // Add a custom input key for the EvilSword
+            Config.Bind("Client config", "EvilSwordSpecialAttack", KeyCode.B, new ConfigDescription("Key to unleash evil with the Evil Sword"));
         }
 
         // Various forms of asset loading
-        private void loadAssets()
+        private void LoadAssets()
         {
             // Load texture
             testTex = AssetUtils.LoadTexture("JotunnModExample/Assets/test_tex.jpg");
@@ -160,38 +179,93 @@ namespace JotunnModExample
 
         }
 
-        // Implementation of cloned items
-        private void addClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
+        // Add custom key bindings
+        private void AddInputs()
         {
-            // You want that to run only once, JotunnLib has the item cached for the game session
-            if (!clonedItemsAdded)
+            // Add key bindings on the fly
+            InputManager.Instance.AddButton(PluginGUID, "JotunnModExample_Menu", KeyCode.Insert);
+            InputManager.Instance.AddButton(PluginGUID, "GUIManagerTest", KeyCode.F8);
+
+            // Add key bindings backed by a config value
+            // Create a ButtonConfig to also add it as a custom key hint in AddClonedItems
+            evilSwordSpecial = new ButtonConfig
             {
-                //Create a custom resource
-                CustomItem recipeComponent = new CustomItem("CustomWood", "Wood");
-                ItemManager.Instance.AddItem(recipeComponent);
-                recipeComponent.ItemDrop.m_itemData.m_shared.m_name = "$item_customWood";
-                recipeComponent.ItemDrop.m_itemData.m_shared.m_description = "$item_customWood_desc";
+                Name = "EvilSwordSpecialAttack",
+                Key = (KeyCode)Config["Client config", "EvilSwordSpecialAttack"].BoxedValue,
+                HintToken = "$evilsword_beevil"
+            };
+            InputManager.Instance.AddButton(PluginGUID, evilSwordSpecial);
+        }
 
-                // Create and add a custom item based on SwordBlackmetal
-                CustomItem CI = new CustomItem("EvilSword", "SwordBlackmetal");
-                ItemManager.Instance.AddItem(CI);
+        // Adds localizations with configs
+        private void AddLocalizations()
+        {
+            // Add translations for the custom item in AddClonedItems
+            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            {
+                Translations = {
+                    {"item_evilsword", "Sword of Darkness"}, {"item_evilsword_desc", "Bringing the light"},
+                    {"evilsword_shwing", "Woooosh"}, {"evilsword_scroll", "*scroll*"},
+                    {"evilsword_beevil", "Be evil"}, {"evilsword_beevilmessage", ":reee:"},
+                    {"evilsword_effectname", "Evil"}, {"evilsword_effectstart", "You feel evil"},
+                    {"evilsword_effectstop", "You feel nice again"}
+                }
+            });
 
-                // Replace vanilla properties of the custom item
-                var itemDrop = CI.ItemDrop;
-                itemDrop.m_itemData.m_shared.m_name = "$item_evilsword";
-                itemDrop.m_itemData.m_shared.m_description = "$item_evilsword_desc";
+            // Add translations for the custom piece in AddEmptyItems
+            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English") { Translations = { { "piece_lul", "Lulz" } } });
+        }
 
-                recipeEvilSword(itemDrop);
+        // Register new console commands
+        private void AddCommands()
+        {
+            CommandManager.Instance.AddConsoleCommand(new PrintItemsCommand());
+            CommandManager.Instance.AddConsoleCommand(new TpCommand());
+            CommandManager.Instance.AddConsoleCommand(new ListPlayersCommand());
+            CommandManager.Instance.AddConsoleCommand(new SkinColorCommand());
+            CommandManager.Instance.AddConsoleCommand(new RaiseSkillCommand());
+            CommandManager.Instance.AddConsoleCommand(new BetterSpawnCommand());
+        }
 
-                clonedItemsAdded = true;
-            }
+        // Add a new test skill
+        void AddSkills()
+        {
+            // Test adding a skill with a texture
+            Sprite testSkillSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
+            TestSkillType = SkillManager.Instance.AddSkill(new SkillConfig
+            {
+                Identifier = "com.jotunnlib.JotunnModExample.testskill",
+                Name = "TestingSkill",
+                Description = "A nice testing skill!",
+                Icon = testSkillSprite,
+                IncreaseStep = 1f
+            });
+        }
 
-            // Hook is prefix, we just need to be able to get the vanilla prefabs, JotunnLib registers them in ObjectDB
-            orig(self, other);
+        // Add new status effects
+        private void AddStatusEffects()
+        {
+            // Create a new status effect. The base class "StatusEffect" does not do very much except displaying messages
+            // A Status Effect is normally a subclass of StatusEffects which has methods for further coding of the effects (e.g. SE_Stats).
+            StatusEffect effect = ScriptableObject.CreateInstance<StatusEffect>();
+            effect.name = "EvilStatusEffect";
+            effect.m_name = "$evilsword_effectname";
+            effect.m_activationAnimation = null;
+            effect.m_cooldownIcon = false;
+            effect.m_flashIcon = false;
+            effect.m_attributes = StatusEffect.StatusAttribute.None;
+            effect.m_icon = AssetUtils.LoadSpriteFromFile("JotunnModExample/Assets/reee.png");
+            effect.m_startMessageType = MessageHud.MessageType.Center;
+            effect.m_startMessage = "$evilsword_effectstart";
+            effect.m_stopMessageType = MessageHud.MessageType.Center;
+            effect.m_stopMessage = "$evilsword_effectstop";
+
+            evilSwordEffect = new CustomStatusEffect(effect, fixReference: false);  // We dont need to fix refs here, because no mocks were used
+            ItemManager.Instance.AddStatusEffect(evilSwordEffect);
         }
 
         // Add new assets via item Configs
-        private void addItemsWithConfigs()
+        private void AddItemsWithConfigs()
         {
             // Add a custom piece table
             PieceManager.Instance.AddPieceTable(BlueprintRuneBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
@@ -202,7 +276,7 @@ namespace JotunnModExample
             BlueprintRuneBundle.Unload(false);
         }
 
-        //Implementation of items and recipes via configs
+        // Implementation of items and recipes via configs
         private void CreateBlueprintRune()
         {
             // Create and add a custom item
@@ -219,21 +293,7 @@ namespace JotunnModExample
             ItemManager.Instance.AddItem(rune);
         }
 
-        //Implementation of stub objects
-        private void addEmptyPiece()
-        {
-            CustomPiece CP = new CustomPiece("$piece_lul", "Hammer");
-            if (CP != null)
-            {
-                var piece = CP.Piece;
-                piece.m_icon = testSprite;
-                var prefab = CP.PiecePrefab;
-                prefab.GetComponent<MeshRenderer>().material.mainTexture = testTex;
-                PieceManager.Instance.AddPiece(CP);
-            }
-        }
-
-        //Implementation of pieces via configs.
+        // Implementation of pieces via configs.
         private void CreateRunePieces()
         {
             // Create and add custom pieces
@@ -257,36 +317,36 @@ namespace JotunnModExample
                     }
                 });
             PieceManager.Instance.AddPiece(placebp);
-            blueprintRuneLocalizations();
+            BlueprintRuneLocalizations();
         }
 
-        //Implementation of assets via using manual recipe creation and prefab cache's
-        private static void recipeEvilSword(ItemDrop itemDrop)
+        // Add localisations from asset bundles
+        private void BlueprintRuneLocalizations()
         {
-            // Create and add a recipe for the copied item
-            Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
-            recipe.name = "Recipe_EvilSword";
-            recipe.m_item = itemDrop;
-            recipe.m_craftingStation = PrefabManager.Cache.GetPrefab<CraftingStation>("piece_workbench");
-            recipe.m_resources = new Piece.Requirement[]
+            TextAsset[] textAssets = BlueprintRuneBundle.LoadAllAssets<TextAsset>();
+            foreach (var textAsset in textAssets)
             {
-                    new Piece.Requirement()
-                    {
-                        m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("Stone"),
-                        m_amount = 1
-                    },
-                    new Piece.Requirement()
-                    {
-                        m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("CustomWood"),
-                        m_amount = 1
-                    }
-            };
-            CustomRecipe CR = new CustomRecipe(recipe, false, false);
-            ItemManager.Instance.AddRecipe(CR);
+                var lang = textAsset.name.Replace(".json", null);
+                LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
+            }
         }
 
-        //Implementation of assets using mocks, adding recipe's manually without the config abstraction
-        private void addMockedItems()
+        // Implementation of stub objects
+        private void AddEmptyPiece()
+        {
+            CustomPiece CP = new CustomPiece("$piece_lul", "Hammer");
+            if (CP != null)
+            {
+                var piece = CP.Piece;
+                piece.m_icon = testSprite;
+                var prefab = CP.PiecePrefab;
+                prefab.GetComponent<MeshRenderer>().material.mainTexture = testTex;
+                PieceManager.Instance.AddPiece(CP);
+            }
+        }
+
+        // Implementation of assets using mocks, adding recipe's manually without the config abstraction
+        private void AddMockedItems()
         {
             if (!backpackPrefab) JotunnLib.Logger.LogWarning($"Failed to load asset from bundle: {embeddedResourceBundle}");
             else
@@ -315,78 +375,90 @@ namespace JotunnModExample
             embeddedResourceBundle.Unload(false);
         }
 
-        //A manual implementation of localisation.
-        void registerLocalization()
+        // Implementation of cloned items
+        private void AddClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
         {
-            // Add translations for the custom item in addClonedItems
-            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            // You want that to run only once, JotunnLib has the item cached for the game session
+            if (!clonedItemsProcessed)
             {
-                Translations =
+                try
                 {
-                    { "item_evilsword", "Sword of Darkness" },
-                    { "item_evilsword_desc", "Bringing the light" }
-                }
-            });
+                    // Create a custom resource based on Wood
+                    CustomItem recipeComponent = new CustomItem("CustomWood", "Wood");
+                    ItemManager.Instance.AddItem(recipeComponent);
+                    recipeComponent.ItemDrop.m_itemData.m_shared.m_name = "$item_customWood";
+                    recipeComponent.ItemDrop.m_itemData.m_shared.m_description = "$item_customWood_desc";
 
-            // Add translations for the custom piece in addEmptyItems
-            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
-            {
-                Translations =
+                    // Create and add a custom item based on SwordBlackmetal
+                    CustomItem CI = new CustomItem("EvilSword", "SwordBlackmetal");
+                    ItemManager.Instance.AddItem(CI);
+
+                    // Replace vanilla properties of the custom item
+                    var itemDrop = CI.ItemDrop;
+                    itemDrop.m_itemData.m_shared.m_name = "$item_evilsword";
+                    itemDrop.m_itemData.m_shared.m_description = "$item_evilsword_desc";
+
+                    RecipeEvilSword(itemDrop);
+
+                    KeyHintsEvilSword();
+                }
+                catch (Exception ex)
                 {
-                    { "piece_lul", "Lulz" }
+                    JotunnLib.Logger.LogError($"Error while adding cloned item: {ex.Message}");
                 }
-            });
-        }
-
-        //Add localisations from asset bundles
-        private void blueprintRuneLocalizations()
-        {
-            TextAsset[] textAssets = BlueprintRuneBundle.LoadAllAssets<TextAsset>();
-            foreach (var textAsset in textAssets)
-            {
-                var lang = textAsset.name.Replace(".json", null);
-                LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
+                finally
+                {
+                    clonedItemsProcessed = true;
+                }
             }
-        }
 
-        //Add a new test skill
-        void addSkills()
+            // Hook is prefix, we just need to be able to get the vanilla prefabs, JotunnLib registers them in ObjectDB
+            orig(self, other);
+        }
+        
+        // Implementation of assets via using manual recipe creation and prefab cache's
+        private void RecipeEvilSword(ItemDrop itemDrop)
         {
-            // Test adding a skill with a texture
-            Sprite testSkillSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
-            TestSkillType = SkillManager.Instance.AddSkill(new SkillConfig
+            // Create and add a recipe for the copied item
+            Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
+            recipe.name = "Recipe_EvilSword";
+            recipe.m_item = itemDrop;
+            recipe.m_craftingStation = PrefabManager.Cache.GetPrefab<CraftingStation>("piece_workbench");
+            recipe.m_resources = new Piece.Requirement[]
             {
-                Identifier = "com.jotunnlib.JotunnModExample.testskill",
-                Name = "TestingSkill",
-                Description = "A nice testing skill!",
-                Icon = testSkillSprite,
-                IncreaseStep = 1f
-            });
+                    new Piece.Requirement()
+                    {
+                        m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("Stone"),
+                        m_amount = 1
+                    },
+                    new Piece.Requirement()
+                    {
+                        m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("CustomWood"),
+                        m_amount = 1
+                    }
+            };
+            CustomRecipe CR = new CustomRecipe(recipe, false, false);
+            ItemManager.Instance.AddRecipe(CR);
         }
 
-        // Register new console commands
-        private void addCommands()
+        // Implementation of key hints replacing vanilla keys and using custom keys
+        private void KeyHintsEvilSword()
         {
-            CommandManager.Instance.AddConsoleCommand(new PrintItemsCommand());
-            CommandManager.Instance.AddConsoleCommand(new TpCommand());
-            CommandManager.Instance.AddConsoleCommand(new ListPlayersCommand());
-            CommandManager.Instance.AddConsoleCommand(new SkinColorCommand());
-            CommandManager.Instance.AddConsoleCommand(new RaiseSkillCommand());
-            CommandManager.Instance.AddConsoleCommand(new BetterSpawnCommand());
-        }
-
-        // Create some sample configuration values to check server sync
-        private void createConfigValues()
-        {
-            Config.SaveOnConfigSet = true;
-
-            //Here we showcase BepInEx's configuration flexibility. This is nothing to do we JVL, however we do provide an interface that is capable of respecting the configuration parameters detailed here.
-            Config.Bind("JotunnLibTest", "StringValue1", "StringValue", new ConfigDescription("Server side string", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            Config.Bind("JotunnLibTest", "FloatValue1", 750f, new ConfigDescription("Server side float", new AcceptableValueRange<float>(0f, 1000f), new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            Config.Bind("JotunnLibTest", "IntegerValue1", 200, new ConfigDescription("Server side integer", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            Config.Bind("JotunnLibTest", "BoolValue1", false, new ConfigDescription("Server side bool", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            Config.Bind("JotunnLibTest", "KeycodeValue", KeyCode.F10,
-                new ConfigDescription("Server side Keycode", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+            // Create custom KeyHints for the item
+            KeyHintConfig KHC = new KeyHintConfig
+            {
+                Item = "EvilSword",
+                ButtonConfigs = new[]
+                {
+                    // Override vanilla "Attack" key text
+                    new ButtonConfig { Name = "Attack", HintToken = "$evilsword_shwing" },
+                    // New custom input
+                    evilSwordSpecial,
+                    // Override vanilla "Mouse Wheel" text
+                    new ButtonConfig { Name = "Scroll", Axis = "Up", HintToken = "$evilsword_scroll" }
+                }
+            };
+            GUIManager.Instance.AddKeyHint(KHC);
         }
     }
 }
