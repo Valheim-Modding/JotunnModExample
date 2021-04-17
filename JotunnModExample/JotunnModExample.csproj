@@ -3,7 +3,7 @@
   <Import Project="..\packages\JotunnLib.0.2.0\build\JotunnLib.props" Condition="Exists('..\packages\JotunnLib.0.2.0\build\JotunnLib.props')" />
   <Import Project="..\packages\Costura.Fody.5.0.2\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.5.0.2\build\Costura.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="../Environment.props" />
+  <Import Project="../Environment.props" Condition="'$(VALHEIM_INSTALL)' == ''"/>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
