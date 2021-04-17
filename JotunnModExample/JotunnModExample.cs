@@ -153,7 +153,7 @@ namespace JotunnModExample
 
             //Load embedded resources
             JotunnLib.Logger.LogInfo($"Embedded resources: {string.Join(",", Assembly.GetExecutingAssembly().GetManifestResourceNames())}");
-            embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks1", Assembly.GetExecutingAssembly());
+            embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", Assembly.GetExecutingAssembly());
             backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
 
             // Embedded Resources
