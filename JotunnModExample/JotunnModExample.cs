@@ -84,7 +84,7 @@ namespace JotunnModExample
             }
 
             // Use the name of the ButtonConfig to identify the button pressed
-            if (evilSwordSpecial != null)
+            if (evilSwordSpecial != null && ZInput.instance != null && MessageHud.instance != null)
             {
                 if (ZInput.GetButtonDown(evilSwordSpecial.Name) && MessageHud.instance.m_msgQeue.Count == 0)
                 {
