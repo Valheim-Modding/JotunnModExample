@@ -36,7 +36,7 @@ namespace JotunnModExample
         private AssetBundle embeddedResourceBundle;
 
         private Skills.SkillType TestSkillType = 0;
-            
+
         private bool showGUI = false;
 
         private Texture2D testTex;
@@ -84,9 +84,12 @@ namespace JotunnModExample
             }
 
             // Use the name of the ButtonConfig to identify the button pressed
-            if (ZInput.GetButtonDown(evilSwordSpecial.Name) && MessageHud.instance.m_msgQeue.Count == 0)
+            if (evilSwordSpecial != null)
             {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$evilsword_beevilmessage");
+                if (ZInput.GetButtonDown(evilSwordSpecial.Name) && MessageHud.instance.m_msgQeue.Count == 0)
+                {
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$evilsword_beevilmessage");
+                }
             }
         }
 
@@ -395,7 +398,7 @@ namespace JotunnModExample
             // Hook is prefix, we just need to be able to get the vanilla prefabs, JotunnLib registers them in ObjectDB
             orig(self, other);
         }
-        
+
         // Implementation of assets via using manual recipe creation and prefab cache's
         private void RecipeEvilSword(ItemDrop itemDrop)
         {
