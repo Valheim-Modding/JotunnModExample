@@ -90,7 +90,12 @@ namespace JotunnModExample
                 {
                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$evilsword_beevilmessage");
                 }
+                if (Input.GetKeyDown(KeyCode.F7))
+                {
+                    Player.m_localPlayer?.RaiseSkill(TestSkillType, 1f);
+                }
             }
+
         }
 
         // Called every frame for rendering and handling GUI events
@@ -196,7 +201,8 @@ namespace JotunnModExample
                     {"evilsword_shwing", "Woooosh"}, {"evilsword_scroll", "*scroll*"},
                     {"evilsword_beevil", "Be evil"}, {"evilsword_beevilmessage", ":reee:"},
                     {"evilsword_effectname", "Evil"}, {"evilsword_effectstart", "You feel evil"},
-                    {"evilsword_effectstop", "You feel nice again"}
+                    {"evilsword_effectstop", "You feel nice again"},
+                    {"skill_TestingSkill", "TestLocalizedSkillName" }
                 }
             });
 
