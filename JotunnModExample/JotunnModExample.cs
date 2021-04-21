@@ -17,7 +17,6 @@ using JotunnLib.Entities;
 using System.Collections.Generic;
 using System.IO;
 using JotunnModExample.ConsoleCommands;
-using static JotunnLib.Utils.ExposedGameObjectExtensions;
 
 namespace JotunnModExample
 {
