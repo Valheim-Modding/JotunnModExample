@@ -7,13 +7,13 @@
 using BepInEx;
 using UnityEngine;
 using BepInEx.Configuration;
-using JotunnLib.Utils;
+using Jotunn.Utils;
 using System.Reflection;
-using JotunnLib.Managers;
-using Logger = JotunnLib.Logger;
-using JotunnLib.Configs;
+using Jotunn.Managers;
+using Logger = Jotunn.Logger;
+using Jotunn.Configs;
 using System;
-using JotunnLib.Entities;
+using Jotunn.Entities;
 using System.Collections.Generic;
 using System.IO;
 using JotunnModExample.ConsoleCommands;
@@ -21,7 +21,7 @@ using JotunnModExample.ConsoleCommands;
 namespace JotunnModExample
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(JotunnLib.Main.ModGuid)]
+    [BepInDependency(Jotunn.Main.ModGuid)]
     [NetworkCompatibilty(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     [BepInDependency("cinnabun.backpacks-v1.0.0", BepInDependency.DependencyFlags.SoftDependency)]
     internal class JotunnModExample : BaseUnityPlugin
@@ -29,7 +29,7 @@ namespace JotunnModExample
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
         public const string PluginVersion = "1.0.0";
-        public static new JotunnLib.Logger Logger;
+        public static new Jotunn.Logger Logger;
 
         private AssetBundle TestAssets;
         private AssetBundle BlueprintRuneBundle;
@@ -158,14 +158,14 @@ namespace JotunnModExample
 
             // Load asset bundle from filesystem
             TestAssets = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/jotunnlibtest");
-            JotunnLib.Logger.LogInfo(TestAssets);
+            Jotunn.Logger.LogInfo(TestAssets);
 
             // Load asset bundle from filesystem
             BlueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/blueprints");
-            JotunnLib.Logger.LogInfo(BlueprintRuneBundle);
+            Jotunn.Logger.LogInfo(BlueprintRuneBundle);
 
             //Load embedded resources
-            JotunnLib.Logger.LogInfo($"Embedded resources: {string.Join(",", Assembly.GetExecutingAssembly().GetManifestResourceNames())}");
+            Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(",", Assembly.GetExecutingAssembly().GetManifestResourceNames())}");
             embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", Assembly.GetExecutingAssembly());
             backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
 
@@ -228,7 +228,7 @@ namespace JotunnModExample
             Sprite testSkillSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
             TestSkillType = SkillManager.Instance.AddSkill(new SkillConfig
             {
-                Identifier = "com.jotunnlib.JotunnModExample.testskill",
+                Identifier = "com.jotunn.JotunnModExample.testskill",
                 Name = "TestingSkill",
                 Description = "A nice testing skill!",
                 Icon = testSkillSprite,
@@ -338,7 +338,7 @@ namespace JotunnModExample
         // Implementation of assets using mocks, adding recipe's manually without the config abstraction
         private void AddMockedItems()
         {
-            if (!backpackPrefab) JotunnLib.Logger.LogWarning($"Failed to load asset from bundle: {embeddedResourceBundle}");
+            if (!backpackPrefab) Jotunn.Logger.LogWarning($"Failed to load asset from bundle: {embeddedResourceBundle}");
             else
             {
                 // Create and add a custom item
@@ -394,7 +394,7 @@ namespace JotunnModExample
                 }
                 catch (Exception ex)
                 {
-                    JotunnLib.Logger.LogError($"Error while adding cloned item: {ex.Message}");
+                    Jotunn.Logger.LogError($"Error while adding cloned item: {ex.Message}");
                 }
                 finally
                 {
