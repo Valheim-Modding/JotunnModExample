@@ -445,7 +445,7 @@ namespace JotunnModExample
                     // New custom input
                     evilSwordSpecial,
                     // Override vanilla "Mouse Wheel" text
-                    new ButtonConfig { Name = "Scroll", Axis = "Up", HintToken = "$evilsword_scroll" }
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$evilsword_scroll" }
                 }
             };
             GUIManager.Instance.AddKeyHint(KHC);
