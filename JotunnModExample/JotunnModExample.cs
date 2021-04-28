@@ -5,18 +5,17 @@
 // Project: JotunnModStub
 
 using BepInEx;
-using UnityEngine;
 using BepInEx.Configuration;
-using Jotunn.Utils;
-using System.Reflection;
-using Jotunn.Managers;
-using Logger = Jotunn.Logger;
 using Jotunn.Configs;
-using System;
 using Jotunn.Entities;
-using System.Collections.Generic;
-using System.IO;
+using Jotunn.Managers;
+using Jotunn.Utils;
 using JotunnModExample.ConsoleCommands;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
+using Logger = Jotunn.Logger;
 
 namespace JotunnModExample
 {
@@ -29,11 +28,11 @@ namespace JotunnModExample
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
         public const string PluginVersion = "1.0.0";
-        public static new Jotunn.Logger Logger;
 
         private AssetBundle TestAssets;
         private AssetBundle BlueprintRuneBundle;
         private AssetBundle embeddedResourceBundle;
+        private AssetBundle steelingot;
 
         private Skills.SkillType TestSkillType = 0;
 
@@ -252,6 +251,21 @@ namespace JotunnModExample
 
             evilSwordEffect = new CustomStatusEffect(effect, fixReference: false);  // We dont need to fix refs here, because no mocks were used
             ItemManager.Instance.AddStatusEffect(evilSwordEffect);
+        }
+
+        // Add custom item conversion (gives a steel ingot to smelter)
+        private void AddCustomItemAndConversion()
+        {
+            var steel_prefab = steelingot.LoadAsset<GameObject>("Steel");
+            var ingot = new CustomItem(steel_prefab, fixReference: false);
+            var blastConversion = new CustomItemConversion(new SmelterConversionConfig
+            {
+                Station = "blastfurnace", // let's specify something other than default here 
+                FromItem = "Iron",
+                ToItem = "Steel" //This is our custom prefabs name we have loaded just above 
+            });
+            ItemManager.Instance.AddItem(ingot);
+            ItemManager.Instance.AddItemConversion(blastConversion);
         }
 
         // Add new assets via item Configs
