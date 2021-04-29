@@ -58,6 +58,7 @@ namespace JotunnModExample
             AddCommands();
             AddSkills();
             AddStatusEffects();
+            AddCustomItemAndConversion();
             AddItemsWithConfigs();
             AddEmptyPiece();
             AddMockedItems();
@@ -167,9 +168,7 @@ namespace JotunnModExample
             Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(",", Assembly.GetExecutingAssembly().GetManifestResourceNames())}");
             embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", Assembly.GetExecutingAssembly());
             backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
-
-            // Embedded Resources
-
+            steelingot = AssetUtils.LoadAssetBundleFromResources("steel", Assembly.GetExecutingAssembly());
         }
 
         // Add custom key bindings
