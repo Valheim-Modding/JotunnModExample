@@ -66,7 +66,7 @@ MonoBehaviour:
   m_Script: {fileID: 1521249158, guid: 02f806226319f1d4b8ae0232b57e8b19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_persistent: 0
+  m_persistent: 1
   m_distant: 0
   m_type: 0
   m_syncInitialScale: 0
@@ -110,7 +110,8 @@ MonoBehaviour:
       m_name: $steelbar
       m_dlc: 
       m_itemType: 1
-      m_icons: []
+      m_icons:
+      - {fileID: 21300000, guid: 5b717b1904c8c834dababdd4d3456a9a, type: 3}
       m_attachOverride: 0
       m_description: $steelbar_description
       m_maxStackSize: 30
