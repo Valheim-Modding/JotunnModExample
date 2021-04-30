@@ -29,12 +29,12 @@ namespace JotunnModExample
         public const string PluginName = "JotunnModExample";
         public const string PluginVersion = "1.0.0";
 
-        private AssetBundle TestAssets;
-        private AssetBundle BlueprintRuneBundle;
+        private AssetBundle testAssets;
+        private AssetBundle blueprintRuneBundle;
         private AssetBundle embeddedResourceBundle;
-        private AssetBundle steelingot;
+        private AssetBundle steelIngotBundle;
 
-        private Skills.SkillType TestSkillType = 0;
+        private Skills.SkillType testSkillType = 0;
 
         private bool showGUI = false;
 
@@ -58,7 +58,7 @@ namespace JotunnModExample
             AddCommands();
             AddSkills();
             AddStatusEffects();
-            AddCustomItemAndConversion();
+            AddCustomConversions();
             AddItemsWithConfigs();
             AddEmptyPiece();
             AddMockedItems();
@@ -92,7 +92,7 @@ namespace JotunnModExample
                 }
                 if (Input.GetKeyDown(KeyCode.F7))
                 {
-                    Player.m_localPlayer?.RaiseSkill(TestSkillType, 1f);
+                    Player.m_localPlayer?.RaiseSkill(testSkillType, 1f);
                 }
             }
 
@@ -157,18 +157,18 @@ namespace JotunnModExample
             testSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
 
             // Load asset bundle from filesystem
-            TestAssets = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/jotunnlibtest");
-            Jotunn.Logger.LogInfo(TestAssets);
+            testAssets = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/jotunnlibtest");
+            Jotunn.Logger.LogInfo(testAssets);
 
             // Load asset bundle from filesystem
-            BlueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/blueprints");
-            Jotunn.Logger.LogInfo(BlueprintRuneBundle);
+            blueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/blueprints");
+            Jotunn.Logger.LogInfo(blueprintRuneBundle);
 
             //Load embedded resources
             Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(",", Assembly.GetExecutingAssembly().GetManifestResourceNames())}");
             embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", Assembly.GetExecutingAssembly());
             backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
-            steelingot = AssetUtils.LoadAssetBundleFromResources("steel", Assembly.GetExecutingAssembly());
+            steelIngotBundle = AssetUtils.LoadAssetBundleFromResources("steel", Assembly.GetExecutingAssembly());
         }
 
         // Add custom key bindings
@@ -224,7 +224,7 @@ namespace JotunnModExample
         {
             // Test adding a skill with a texture
             Sprite testSkillSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
-            TestSkillType = SkillManager.Instance.AddSkill(new SkillConfig
+            testSkillType = SkillManager.Instance.AddSkill(new SkillConfig
             {
                 Identifier = "com.jotunn.JotunnModExample.testskill",
                 Name = "TestingSkill",
@@ -252,18 +252,30 @@ namespace JotunnModExample
             ItemManager.Instance.AddStatusEffect(evilSwordEffect);
         }
 
-        // Add custom item conversion (gives a steel ingot to smelter)
-        private void AddCustomItemAndConversion()
+        // Add custom item conversions
+        private void AddCustomConversions()
         {
-            var steel_prefab = steelingot.LoadAsset<GameObject>("Steel");
+            // Create a conversion for the smelter with vanilla items
+            var smeltConversion = new CustomItemConversion(new SmelterConversionConfig
+            {
+                //Station = "smelter",  // That is the default station from the SmelterConversionConfig
+                FromItem = "Stone",
+                ToItem = "CookedMeat"
+            });
+            ItemManager.Instance.AddItemConversion(smeltConversion);
+
+            // Load and create a custom item to use in another conversion
+            var steel_prefab = steelIngotBundle.LoadAsset<GameObject>("Steel");
             var ingot = new CustomItem(steel_prefab, fixReference: false);
+            ItemManager.Instance.AddItem(ingot);
+
+            // Create a conversion for the blastfurnace, the custom item is the new outcome
             var blastConversion = new CustomItemConversion(new SmelterConversionConfig
             {
-                Station = "blastfurnace", // let's specify something other than default here 
+                Station = "blastfurnace", // Override the default "smelter" station of the SmelterConversionConfig
                 FromItem = "Iron",
-                ToItem = "Steel" //This is our custom prefabs name we have loaded just above 
+                ToItem = "Steel" // This is our custom prefabs name we have loaded just above 
             });
-            ItemManager.Instance.AddItem(ingot);
             ItemManager.Instance.AddItemConversion(blastConversion);
         }
 
@@ -271,19 +283,19 @@ namespace JotunnModExample
         private void AddItemsWithConfigs()
         {
             // Add a custom piece table
-            PieceManager.Instance.AddPieceTable(BlueprintRuneBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
+            PieceManager.Instance.AddPieceTable(blueprintRuneBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
             CreateBlueprintRune();
             CreateRunePieces();
 
             // Don't forget to unload the bundle to free the resources
-            BlueprintRuneBundle.Unload(false);
+            blueprintRuneBundle.Unload(false);
         }
 
         // Implementation of items and recipes via configs
         private void CreateBlueprintRune()
         {
             // Create and add a custom item
-            var rune_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("BlueprintRune");
+            var rune_prefab = blueprintRuneBundle.LoadAsset<GameObject>("BlueprintRune");
             var rune = new CustomItem(rune_prefab, fixReference: false,
                 new ItemConfig
                 {
@@ -300,7 +312,7 @@ namespace JotunnModExample
         private void CreateRunePieces()
         {
             // Create and add custom pieces
-            var makebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("make_blueprint");
+            var makebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("make_blueprint");
             var makebp = new CustomPiece(makebp_prefab,
                 new PieceConfig
                 {
@@ -308,7 +320,7 @@ namespace JotunnModExample
                 });
             PieceManager.Instance.AddPiece(makebp);
 
-            var placebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("piece_blueprint");
+            var placebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("piece_blueprint");
             var placebp = new CustomPiece(placebp_prefab,
                 new PieceConfig
                 {
@@ -326,7 +338,7 @@ namespace JotunnModExample
         // Add localisations from asset bundles
         private void BlueprintRuneLocalizations()
         {
-            TextAsset[] textAssets = BlueprintRuneBundle.LoadAllAssets<TextAsset>();
+            TextAsset[] textAssets = blueprintRuneBundle.LoadAllAssets<TextAsset>();
             foreach (var textAsset in textAssets)
             {
                 var lang = textAsset.name.Replace(".json", null);
