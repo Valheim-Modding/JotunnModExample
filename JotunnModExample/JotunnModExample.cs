@@ -63,9 +63,8 @@ namespace JotunnModExample
             AddEmptyPiece();
             AddMockedItems();
 
-            // Hook ObjectDB.CopyOtherDB to add custom items cloned from vanilla items
-            On.ObjectDB.CopyOtherDB += AddClonedItems;
-
+            // Add custom items cloned from vanilla items
+            ItemManager.OnVanillaItemsAvailable += AddClonedItems;
         }
 
         // Called every frame
@@ -391,44 +390,38 @@ namespace JotunnModExample
         }
 
         // Implementation of cloned items
-        private void AddClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
+        private void AddClonedItems()
         {
-            // You want that to run only once, JotunnLib has the item cached for the game session
-            if (!clonedItemsProcessed)
+            try
             {
-                try
-                {
-                    // Create a custom resource based on Wood
-                    CustomItem recipeComponent = new CustomItem("CustomWood", "Wood");
-                    ItemManager.Instance.AddItem(recipeComponent);
-                    recipeComponent.ItemDrop.m_itemData.m_shared.m_name = "$item_customWood";
-                    recipeComponent.ItemDrop.m_itemData.m_shared.m_description = "$item_customWood_desc";
+                // Create a custom resource based on Wood
+                CustomItem recipeComponent = new CustomItem("CustomWood", "Wood");
+                ItemManager.Instance.AddItem(recipeComponent);
+                recipeComponent.ItemDrop.m_itemData.m_shared.m_name = "$item_customWood";
+                recipeComponent.ItemDrop.m_itemData.m_shared.m_description = "$item_customWood_desc";
 
-                    // Create and add a custom item based on SwordBlackmetal
-                    CustomItem CI = new CustomItem("EvilSword", "SwordBlackmetal");
-                    ItemManager.Instance.AddItem(CI);
+                // Create and add a custom item based on SwordBlackmetal
+                CustomItem CI = new CustomItem("EvilSword", "SwordBlackmetal");
+                ItemManager.Instance.AddItem(CI);
 
-                    // Replace vanilla properties of the custom item
-                    var itemDrop = CI.ItemDrop;
-                    itemDrop.m_itemData.m_shared.m_name = "$item_evilsword";
-                    itemDrop.m_itemData.m_shared.m_description = "$item_evilsword_desc";
+                // Replace vanilla properties of the custom item
+                var itemDrop = CI.ItemDrop;
+                itemDrop.m_itemData.m_shared.m_name = "$item_evilsword";
+                itemDrop.m_itemData.m_shared.m_description = "$item_evilsword_desc";
 
-                    RecipeEvilSword(itemDrop);
+                RecipeEvilSword(itemDrop);
 
-                    KeyHintsEvilSword();
-                }
-                catch (Exception ex)
-                {
-                    Jotunn.Logger.LogError($"Error while adding cloned item: {ex.Message}");
-                }
-                finally
-                {
-                    clonedItemsProcessed = true;
-                }
+                KeyHintsEvilSword();
             }
-
-            // Hook is prefix, we just need to be able to get the vanilla prefabs, JotunnLib registers them in ObjectDB
-            orig(self, other);
+            catch (Exception ex)
+            {
+                Jotunn.Logger.LogError($"Error while adding cloned item: {ex.Message}");
+            }
+            finally
+            {
+                // You want that to run only once, JotunnLib has the item cached for the game session
+                ItemManager.OnVanillaItemsAvailable -= AddClonedItems;
+            }
         }
 
         // Implementation of assets via using manual recipe creation and prefab cache's
