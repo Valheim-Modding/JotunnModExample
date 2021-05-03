@@ -31,10 +31,8 @@ namespace JotunnModExample
 
         private AssetBundle testAssets;
         private AssetBundle blueprintRuneBundle;
-        private AssetBundle embeddedResourceBundle;
         private AssetBundle steelIngotBundle;
-
-        private Skills.SkillType testSkillType = 0;
+        private AssetBundle embeddedResourceBundle;
 
         private bool showGUI = false;
 
@@ -42,9 +40,8 @@ namespace JotunnModExample
         private Sprite testSprite;
         private GameObject testPanel;
 
-        private bool clonedItemsProcessed = false;
+        private Skills.SkillType testSkill = 0;
         private GameObject backpackPrefab;
-
         private ButtonConfig evilSwordSpecial;
         private CustomStatusEffect evilSwordEffect;
 
@@ -80,21 +77,22 @@ namespace JotunnModExample
                 {
                     showGUI = !showGUI;
                 }
-            }
 
-            // Use the name of the ButtonConfig to identify the button pressed
-            if (evilSwordSpecial != null && ZInput.instance != null && MessageHud.instance != null)
-            {
-                if (ZInput.GetButtonDown(evilSwordSpecial.Name) && MessageHud.instance.m_msgQeue.Count == 0)
+                // Use the name of the ButtonConfig to identify the button pressed
+                if (evilSwordSpecial != null && MessageHud.instance != null)
                 {
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$evilsword_beevilmessage");
+                    if (ZInput.GetButtonDown(evilSwordSpecial.Name) && MessageHud.instance.m_msgQeue.Count == 0)
+                    {
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$evilsword_beevilmessage");
+                    }
                 }
-                if (Input.GetKeyDown(KeyCode.F7))
+
+                // Raise the test skill
+                if (Player.m_localPlayer != null && ZInput.GetButtonDown("JotunnExampleMod_RaiseSkill"))
                 {
-                    Player.m_localPlayer?.RaiseSkill(testSkillType, 1f);
+                    Player.m_localPlayer.RaiseSkill(testSkill, 1f);
                 }
             }
-
         }
 
         // Called every frame for rendering and handling GUI events
@@ -164,10 +162,10 @@ namespace JotunnModExample
             Jotunn.Logger.LogInfo(blueprintRuneBundle);
 
             //Load embedded resources
-            Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(",", Assembly.GetExecutingAssembly().GetManifestResourceNames())}");
-            embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", Assembly.GetExecutingAssembly());
+            Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(",", typeof(JotunnModExample).Assembly.GetManifestResourceNames())}");
+            embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", typeof(JotunnModExample).Assembly);
             backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
-            steelIngotBundle = AssetUtils.LoadAssetBundleFromResources("steel", Assembly.GetExecutingAssembly());
+            steelIngotBundle = AssetUtils.LoadAssetBundleFromResources("steel", typeof(JotunnModExample).Assembly);
         }
 
         // Add custom key bindings
@@ -185,6 +183,9 @@ namespace JotunnModExample
                 HintToken = "$evilsword_beevil"
             };
             InputManager.Instance.AddButton(PluginGUID, evilSwordSpecial);
+
+            // Add a key binding to test skill raising
+            InputManager.Instance.AddButton(PluginGUID, "JotunnExampleMod_RaiseSkill", KeyCode.Home);
         }
 
         // Adds localizations with configs
@@ -223,7 +224,7 @@ namespace JotunnModExample
         {
             // Test adding a skill with a texture
             Sprite testSkillSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
-            testSkillType = SkillManager.Instance.AddSkill(new SkillConfig
+            testSkill = SkillManager.Instance.AddSkill(new SkillConfig
             {
                 Identifier = "com.jotunn.JotunnModExample.testskill",
                 Name = "TestingSkill",
@@ -409,8 +410,10 @@ namespace JotunnModExample
                 itemDrop.m_itemData.m_shared.m_name = "$item_evilsword";
                 itemDrop.m_itemData.m_shared.m_description = "$item_evilsword_desc";
 
+                // Create the recipe for the sword
                 RecipeEvilSword(itemDrop);
 
+                // Show a different KeyHint for the sword.
                 KeyHintsEvilSword();
             }
             catch (Exception ex)
@@ -419,7 +422,7 @@ namespace JotunnModExample
             }
             finally
             {
-                // You want that to run only once, JotunnLib has the item cached for the game session
+                // You want that to run only once, Jotunn has the item cached for the game session
                 ItemManager.OnVanillaItemsAvailable -= AddClonedItems;
             }
         }
@@ -434,18 +437,19 @@ namespace JotunnModExample
             recipe.m_craftingStation = PrefabManager.Cache.GetPrefab<CraftingStation>("piece_workbench");
             recipe.m_resources = new Piece.Requirement[]
             {
-                    new Piece.Requirement()
-                    {
-                        m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("Stone"),
-                        m_amount = 1
-                    },
-                    new Piece.Requirement()
-                    {
-                        m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("CustomWood"),
-                        m_amount = 1
-                    }
+                new Piece.Requirement()
+                {
+                    m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("Stone"),
+                    m_amount = 1
+                },
+                new Piece.Requirement()
+                {
+                    m_resItem = PrefabManager.Cache.GetPrefab<ItemDrop>("CustomWood"),
+                    m_amount = 1
+                }
             };
-            CustomRecipe CR = new CustomRecipe(recipe, false, false);
+            // Since we got the vanilla prefabs from the cache, no referencing is needed
+            CustomRecipe CR = new CustomRecipe(recipe, fixReference: false, fixRequirementReferences: false);
             ItemManager.Instance.AddRecipe(CR);
         }
 
