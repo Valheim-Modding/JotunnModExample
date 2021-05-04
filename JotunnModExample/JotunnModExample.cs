@@ -1,8 +1,9 @@
-﻿// JotunnModStub
-// a Valheim mod skeleton using JötunnLib
+﻿// JotunnModExample
+// A Valheim mod using Jötunn
+// Used to demonstrate the libraries capabilities
 // 
-// File:    JotunnModStub.cs
-// Project: JotunnModStub
+// File:    JotunnModExample.cs
+// Project: JotunnModExample
 
 using BepInEx;
 using BepInEx.Configuration;
@@ -13,7 +14,6 @@ using Jotunn.Utils;
 using JotunnModExample.ConsoleCommands;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using Logger = Jotunn.Logger;
 
