@@ -302,7 +302,13 @@ namespace JotunnModExample
                     Amount = 1,
                     Requirements = new[]
                     {
-                        new RequirementConfig { Item = "Stone", Amount = 1 }
+                        new RequirementConfig 
+                        { 
+                            Item = "Stone",
+                            //Amount = 1,           // These are all the defaults, so no need to specify
+                            //AmountPerLevel = 0,
+                            //Recover = false 
+                        }
                     }
                 });
             ItemManager.Instance.AddItem(rune);
@@ -328,7 +334,13 @@ namespace JotunnModExample
                     AllowedInDungeons = true,
                     Requirements = new[]
                     {
-                        new RequirementConfig { Item = "Wood", Amount = 2 }
+                        new RequirementConfig 
+                        { 
+                            Item = "Wood",
+                            Amount = 2,
+                            //AmountPerLevel = 0,   // Amount is changed, all other Properties are left at default
+                            //Recover = false 
+                        }
                     }
                 });
             PieceManager.Instance.AddPiece(placebp);
