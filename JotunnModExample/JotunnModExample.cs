@@ -55,7 +55,7 @@ namespace JotunnModExample
             AddCommands();
             AddSkills();
             AddStatusEffects();
-            AddCustomConversions();
+            AddCustomItemConversions();
             AddItemsWithConfigs();
             AddEmptyPiece();
             AddMockedItems();
@@ -253,14 +253,32 @@ namespace JotunnModExample
         }
 
         // Add custom item conversions
-        private void AddCustomConversions()
+        private void AddCustomItemConversions()
         {
-            // Create a conversion for the smelter with vanilla items
+            // Add an item conversion for the CookingStation. The items must have an "attach" child GameObject to display it on the station.
+            var cookConversion = new CustomItemConversion(new CookingConversionConfig
+            {
+                FromItem = "CookedMeat",
+                ToItem = "CookedLoxMeat",
+                CookTime = 2f
+            });
+            ItemManager.Instance.AddItemConversion(cookConversion);
+
+            // Add an item conversion for the Fermenter. You can specify how much new items the conversion yields.
+            var fermentConversion = new CustomItemConversion(new FermenterConversionConfig
+            {
+                FromItem = "Coal",
+                ToItem = "CookedLoxMeat",
+                ProducedItems = 10
+            });
+            ItemManager.Instance.AddItemConversion(fermentConversion);
+
+            // Add an item conversion for the smelter
             var smeltConversion = new CustomItemConversion(new SmelterConversionConfig
             {
-                //Station = "smelter",  // That is the default station from the SmelterConversionConfig
+                //Station = "smelter",  // Use the default from the config
                 FromItem = "Stone",
-                ToItem = "CookedMeat"
+                ToItem = "CookedLoxMeat"
             });
             ItemManager.Instance.AddItemConversion(smeltConversion);
 
