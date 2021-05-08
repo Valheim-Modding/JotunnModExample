@@ -402,6 +402,7 @@ namespace JotunnModExample
 
                 //Create and add a custom recipe
                 Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
+                recipe.name = "Recipe_CapeIronBackpack";
                 recipe.m_item = backpackPrefab.GetComponent<ItemDrop>();
                 recipe.m_craftingStation = Mock<CraftingStation>.Create("piece_workbench");
                 var ingredients = new List<Piece.Requirement>
