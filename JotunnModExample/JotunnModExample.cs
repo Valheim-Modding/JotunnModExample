@@ -158,7 +158,7 @@ namespace JotunnModExample
             Jotunn.Logger.LogInfo(testAssets);
 
             // Load asset bundle from filesystem
-            blueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/blueprints");
+            blueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/testblueprints");
             Jotunn.Logger.LogInfo(blueprintRuneBundle);
 
             //Load embedded resources
@@ -283,7 +283,7 @@ namespace JotunnModExample
         private void AddItemsWithConfigs()
         {
             // Add a custom piece table
-            PieceManager.Instance.AddPieceTable(blueprintRuneBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
+            PieceManager.Instance.AddPieceTable(blueprintRuneBundle.LoadAsset<GameObject>("_BlueprintTestTable"));
             CreateBlueprintRune();
             CreateRunePieces();
 
@@ -295,7 +295,7 @@ namespace JotunnModExample
         private void CreateBlueprintRune()
         {
             // Create and add a custom item
-            var rune_prefab = blueprintRuneBundle.LoadAsset<GameObject>("BlueprintRune");
+            var rune_prefab = blueprintRuneBundle.LoadAsset<GameObject>("BlueprintTestRune");
             var rune = new CustomItem(rune_prefab, fixReference: false,
                 new ItemConfig
                 {
@@ -318,19 +318,19 @@ namespace JotunnModExample
         private void CreateRunePieces()
         {
             // Create and add custom pieces
-            var makebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("make_blueprint");
+            var makebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("make_testblueprint");
             var makebp = new CustomPiece(makebp_prefab,
                 new PieceConfig
                 {
-                    PieceTable = "_BlueprintPieceTable"
+                    PieceTable = "_BlueprintTestTable"
                 });
             PieceManager.Instance.AddPiece(makebp);
 
-            var placebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("piece_blueprint");
+            var placebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("piece_testblueprint");
             var placebp = new CustomPiece(placebp_prefab,
                 new PieceConfig
                 {
-                    PieceTable = "_BlueprintPieceTable",
+                    PieceTable = "_BlueprintTestTable",
                     AllowedInDungeons = true,
                     Requirements = new[]
                     {

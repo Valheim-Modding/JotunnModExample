@@ -1,6 +1,6 @@
 {
-  "item_blueprintrune": "Rune des Kopierens",
-  "item_blueprintrune_desc": "Kopiert Strukturen und baut sie an anderer Stelle wieder auf.",
+  "item_testblueprintrune": "Rune des Kopierens",
+  "item_testblueprintrune_desc": "Kopiert Strukturen und baut sie an anderer Stelle wieder auf.",
   "make_blueprint": "Neue Blaupause",
   "make_blueprint_desc": "Erstellt eine neue Blaupause einer bestehenden Struktur.",
   "piece_blueprint": "Blaupause",

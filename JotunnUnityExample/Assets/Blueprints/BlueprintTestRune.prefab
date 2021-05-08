@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 3485591328026002025}
   - component: {fileID: 4483421426599012008}
   m_Layer: 12
-  m_Name: BlueprintRune
+  m_Name: BlueprintTestRune
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -214,13 +214,13 @@ MonoBehaviour:
     m_quality: 1
     m_variant: 0
     m_shared:
-      m_name: $item_blueprintrune
+      m_name: $item_testblueprintrune
       m_dlc: 
       m_itemType: 19
       m_icons:
       - {fileID: 21300000, guid: 32ce149e79275304d84a61986a4cddd2, type: 3}
       m_attachOverride: 19
-      m_description: $item_blueprintrune_desc
+      m_description: $item_testblueprintrune_desc
       m_maxStackSize: 1
       m_maxQuality: 1
       m_weight: 1
