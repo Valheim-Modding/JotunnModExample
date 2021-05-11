@@ -149,19 +149,19 @@ namespace JotunnModExample
         // Various forms of asset loading
         private void LoadAssets()
         {
-            // Load texture
+            // Load texture from the filesystem
             testTex = AssetUtils.LoadTexture("JotunnModExample/Assets/test_tex.jpg");
             testSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
 
-            // Load asset bundle from filesystem
+            // Load asset bundle from the filesystem
             testAssets = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/jotunnlibtest");
             Jotunn.Logger.LogInfo(testAssets);
 
-            // Load asset bundle from filesystem
+            // Load asset bundle from the filesystem
             blueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/testblueprints");
             Jotunn.Logger.LogInfo(blueprintRuneBundle);
 
-            //Load embedded resources
+            // Load asset bundle from embedded resources
             Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(",", typeof(JotunnModExample).Assembly.GetManifestResourceNames())}");
             embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", typeof(JotunnModExample).Assembly);
             backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
