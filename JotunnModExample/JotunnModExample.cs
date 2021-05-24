@@ -144,6 +144,19 @@ namespace JotunnModExample
 
             // Add a client side custom input key for the EvilSword
             Config.Bind("Client config", "EvilSwordSpecialAttack", KeyCode.B, new ConfigDescription("Key to unleash evil with the Evil Sword"));
+
+            // You can subscribe to a global event when config got synced initially and on changes
+            SynchronizationManager.OnConfigurationSynchronized += (obj, attr) =>
+            {
+                if (attr.InitialSynchronization)
+                {
+                    Jotunn.Logger.LogMessage("Initial Config sync event received");
+                }
+                else
+                {
+                    Jotunn.Logger.LogMessage("Config sync event received");
+                }
+            };
         }
 
         // Various forms of asset loading
@@ -304,6 +317,7 @@ namespace JotunnModExample
             PieceManager.Instance.AddPieceTable(blueprintRuneBundle.LoadAsset<GameObject>("_BlueprintTestTable"));
             CreateBlueprintRune();
             CreateRunePieces();
+            CreateRuneKeyHints();
 
             // Don't forget to unload the bundle to free the resources
             blueprintRuneBundle.Unload(false);
@@ -320,8 +334,8 @@ namespace JotunnModExample
                     Amount = 1,
                     Requirements = new[]
                     {
-                        new RequirementConfig 
-                        { 
+                        new RequirementConfig
+                        {
                             Item = "Stone",
                             //Amount = 1,           // These are all the defaults, so no need to specify
                             //AmountPerLevel = 0,
@@ -352,8 +366,8 @@ namespace JotunnModExample
                     AllowedInDungeons = true,
                     Requirements = new[]
                     {
-                        new RequirementConfig 
-                        { 
+                        new RequirementConfig
+                        {
                             Item = "Wood",
                             Amount = 2,
                             //AmountPerLevel = 0,   // Amount is changed, all other Properties are left at default
@@ -363,6 +377,50 @@ namespace JotunnModExample
                 });
             PieceManager.Instance.AddPiece(placebp);
             BlueprintRuneLocalizations();
+        }
+
+        // Add KeyHints for specific Pieces
+        private void CreateRuneKeyHints()
+        {
+            // Override "default" KeyHint with an empty config
+            KeyHintConfig KHC_base = new KeyHintConfig
+            {
+                Item = "BlueprintTestRune"
+            };
+            GUIManager.Instance.AddKeyHint(KHC_base);
+
+            // Add custom KeyHints for specific pieces
+            KeyHintConfig KHC_make = new KeyHintConfig
+            {
+                Item = "BlueprintTestRune",
+                Piece = "make_testblueprint",
+                ButtonConfigs = new[]
+                {
+                    // Override vanilla "Attack" key text
+                    new ButtonConfig { Name = "Attack", HintToken = "$bprune_make" }
+                }
+            };
+            GUIManager.Instance.AddKeyHint(KHC_make);
+
+            KeyHintConfig KHC_piece = new KeyHintConfig
+            {
+                Item = "BlueprintTestRune",
+                Piece = "piece_testblueprint",
+                ButtonConfigs = new[]
+                {
+                    // Override vanilla "Attack" key text
+                    new ButtonConfig { Name = "Attack", HintToken = "$bprune_piece" }
+                }
+            };
+            GUIManager.Instance.AddKeyHint(KHC_piece);
+
+            // Add additional localization manually
+            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            {
+                Translations = {
+                    {"bprune_make", "Capture Blueprint"}, {"bprune_piece", "Place Blueprint"}
+                }
+            });
         }
 
         // Add localisations from asset bundles
