@@ -338,8 +338,8 @@ namespace JotunnModExample
 
         private void CreateRunePieceTable()
         {
-            GameObject pieceTablePrefab = blueprintRuneBundle.LoadAsset<GameObject>("_BlueprintTestTable");
-            CustomPieceTable CPT = new CustomPieceTable(pieceTablePrefab);
+            GameObject tablePrefab = blueprintRuneBundle.LoadAsset<GameObject>("_BlueprintTestTable");
+            CustomPieceTable CPT = new CustomPieceTable(tablePrefab);
             PieceManager.Instance.AddPieceTable(CPT);
         }
 
