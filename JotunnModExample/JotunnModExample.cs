@@ -57,7 +57,7 @@ namespace JotunnModExample
             AddStatusEffects();
             AddCustomItemConversions();
             AddItemsWithConfigs();
-            AddEmptyPiece();
+            AddPieceCategories();
             AddMockedItems();
 
             // Add custom items cloned from vanilla items
@@ -170,10 +170,6 @@ namespace JotunnModExample
             testAssets = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/jotunnlibtest");
             Jotunn.Logger.LogInfo(testAssets);
 
-            // Load asset bundle from the filesystem
-            blueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/testblueprints");
-            Jotunn.Logger.LogInfo(blueprintRuneBundle);
-
             // Load asset bundle from embedded resources
             Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(",", typeof(JotunnModExample).Assembly.GetManifestResourceNames())}");
             embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", typeof(JotunnModExample).Assembly);
@@ -204,6 +200,14 @@ namespace JotunnModExample
         // Adds localizations with configs
         private void AddLocalizations()
         {
+            // Add translations for our custom skill
+            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            {
+                Translations = {
+                    {"skill_TestingSkill", "TestLocalizedSkillName" }
+                }
+            });
+
             // Add translations for the custom item in AddClonedItems
             LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
             {
@@ -212,13 +216,18 @@ namespace JotunnModExample
                     {"evilsword_shwing", "Woooosh"}, {"evilsword_scroll", "*scroll*"},
                     {"evilsword_beevil", "Be evil"}, {"evilsword_beevilmessage", ":reee:"},
                     {"evilsword_effectname", "Evil"}, {"evilsword_effectstart", "You feel evil"},
-                    {"evilsword_effectstop", "You feel nice again"},
-                    {"skill_TestingSkill", "TestLocalizedSkillName" }
+                    {"evilsword_effectstop", "You feel nice again"}
                 }
             });
 
-            // Add translations for the custom piece in AddEmptyItems
-            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English") { Translations = { { "piece_lul", "Lulz" } } });
+            // Add translations for the custom piece in AddPieceCategories
+            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            {
+                Translations = {
+                    { "piece_lul", "Lulz" }, { "piece_lul_description", "Do it for them" },
+                    { "piece_lel", "Lölz" }, { "piece_lel_description", "Härhärhär" }
+                }
+            });
         }
 
         // Register new console commands
@@ -313,14 +322,25 @@ namespace JotunnModExample
         // Add new assets via item Configs
         private void AddItemsWithConfigs()
         {
-            // Add a custom piece table
-            PieceManager.Instance.AddPieceTable(blueprintRuneBundle.LoadAsset<GameObject>("_BlueprintTestTable"));
+            // Load asset bundle from the filesystem
+            blueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/testblueprints");
+            Jotunn.Logger.LogInfo($"Loaded asset bundle: {blueprintRuneBundle}");
+
+            // Load and add all our custom stuff to Jötunn
+            CreateRunePieceTable();
             CreateBlueprintRune();
             CreateRunePieces();
             CreateRuneKeyHints();
 
             // Don't forget to unload the bundle to free the resources
             blueprintRuneBundle.Unload(false);
+        }
+
+        private void CreateRunePieceTable()
+        {
+            GameObject pieceTablePrefab = blueprintRuneBundle.LoadAsset<GameObject>("_BlueprintTestTable");
+            CustomPieceTable CPT = new CustomPieceTable(pieceTablePrefab);
+            PieceManager.Instance.AddPieceTable(CPT);
         }
 
         // Implementation of items and recipes via configs
@@ -349,7 +369,7 @@ namespace JotunnModExample
         // Implementation of pieces via configs.
         private void CreateRunePieces()
         {
-            // Create and add custom pieces
+            // Create and add a custom piece for the rune. Add the prefab name of the PieceTable to the config.
             var makebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("make_testblueprint");
             var makebp = new CustomPiece(makebp_prefab,
                 new PieceConfig
@@ -358,6 +378,8 @@ namespace JotunnModExample
                 });
             PieceManager.Instance.AddPiece(makebp);
 
+            // Load, create and add another custom piece for the rune. This piece uses more properties
+            // of the PieceConfig - it can now be build in dungeons and has actual requirements to build it.
             var placebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("piece_testblueprint");
             var placebp = new CustomPiece(placebp_prefab,
                 new PieceConfig
@@ -376,7 +398,20 @@ namespace JotunnModExample
                     }
                 });
             PieceManager.Instance.AddPiece(placebp);
+
+            // Also add localizations for the rune 
             BlueprintRuneLocalizations();
+        }
+
+        // Add localisations from asset bundles
+        private void BlueprintRuneLocalizations()
+        {
+            TextAsset[] textAssets = blueprintRuneBundle.LoadAllAssets<TextAsset>();
+            foreach (var textAsset in textAssets)
+            {
+                var lang = textAsset.name.Replace(".json", null);
+                LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
+            }
         }
 
         // Add KeyHints for specific Pieces
@@ -423,27 +458,48 @@ namespace JotunnModExample
             });
         }
 
-        // Add localisations from asset bundles
-        private void BlueprintRuneLocalizations()
+        // Implementation of custom pieces from an "empty" prefab with new piece categories
+        private void AddPieceCategories()
         {
-            TextAsset[] textAssets = blueprintRuneBundle.LoadAllAssets<TextAsset>();
-            foreach (var textAsset in textAssets)
+            // Create a new CustomPiece as an "empty" GameObject. Also set addZNetView to true 
+            // so it will be saved and shared with all clients of a server.
+            CustomPiece CP = new CustomPiece("piece_lul", addZNetView: true, new PieceConfig
             {
-                var lang = textAsset.name.Replace(".json", null);
-                LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
-            }
-        }
+                Name = "$piece_lul",
+                Description = "$piece_lul_description",
+                Icon = testSprite,
+                PieceTable = "Hammer",
+                ExtendStation = "piece_workbench", // Makes this piece a station extension
+                Category = "Lulzies"  // Adds a custom category for the Hammer
+            });
 
-        // Implementation of stub objects
-        private void AddEmptyPiece()
-        {
-            CustomPiece CP = new CustomPiece("$piece_lul", "Hammer");
             if (CP != null)
             {
-                var piece = CP.Piece;
-                piece.m_icon = testSprite;
+                // Add our test texture to the Unity MeshRenderer
                 var prefab = CP.PiecePrefab;
                 prefab.GetComponent<MeshRenderer>().material.mainTexture = testTex;
+
+                PieceManager.Instance.AddPiece(CP);
+            }
+
+            // Create another "empty" custom piece
+            CP = new CustomPiece("piece_lel", addZNetView: true, new PieceConfig
+            {
+                Name = "$piece_lel",
+                Description = "$piece_lel_description",
+                Icon = testSprite,
+                PieceTable = "Hammer",
+                ExtendStation = "piece_workbench", // Makes this piece a station extension
+                Category = "Lulzies"  // Adds a custom category for the Hammer
+            });
+
+            if (CP != null)
+            {
+                // Add our test texture to the Unity MeshRenderer and make the material color grey
+                var prefab = CP.PiecePrefab;
+                prefab.GetComponent<MeshRenderer>().material.mainTexture = testTex;
+                prefab.GetComponent<MeshRenderer>().material.color = Color.grey;
+
                 PieceManager.Instance.AddPiece(CP);
             }
         }
