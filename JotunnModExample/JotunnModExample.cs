@@ -55,14 +55,14 @@ namespace JotunnModExample
             AddCommands();
             AddSkills();
             AddRecipes();
-            /*AddStatusEffects();
+            AddStatusEffects();
             AddCustomItemConversions();
             AddItemsWithConfigs();
             AddPieceCategories();
             AddMockedItems();
 
             // Add custom items cloned from vanilla items
-            ItemManager.OnVanillaItemsAvailable += AddClonedItems;*/
+            ItemManager.OnVanillaItemsAvailable += AddClonedItems;
         }
 
         // Called every frame
