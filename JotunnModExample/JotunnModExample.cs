@@ -54,14 +54,15 @@ namespace JotunnModExample
             AddLocalizations();
             AddCommands();
             AddSkills();
-            AddStatusEffects();
+            AddRecipes();
+            /*AddStatusEffects();
             AddCustomItemConversions();
             AddItemsWithConfigs();
             AddPieceCategories();
             AddMockedItems();
 
             // Add custom items cloned from vanilla items
-            ItemManager.OnVanillaItemsAvailable += AddClonedItems;
+            ItemManager.OnVanillaItemsAvailable += AddClonedItems;*/
         }
 
         // Called every frame
@@ -254,6 +255,25 @@ namespace JotunnModExample
                 Icon = testSkillSprite,
                 IncreaseStep = 1f
             });
+        }
+
+        // Add custom recipes
+        private void AddRecipes()
+        {
+            // Create a custom recipe with a RecipeConfig
+            CustomRecipe meatRecipe = new CustomRecipe(new RecipeConfig()
+            {
+                Item = "CookedMeat",                    // Name of the item prefab to be crafted
+                Requirements = new RequirementConfig[]  // Resources and amount needed for it to be crafted
+                {
+                    new RequirementConfig { Item = "Stone", Amount = 2 },
+                    new RequirementConfig { Item = "Wood", Amount = 1 }
+                }
+            });
+            ItemManager.Instance.AddRecipe(meatRecipe);
+
+            // Load recipes from JSON file
+            //ItemManager.Instance.AddRecipesFromJson("JotunnModExample/Assets/recipes.json");
         }
 
         // Add new status effects
