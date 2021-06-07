@@ -63,6 +63,9 @@ namespace JotunnModExample
 
             // Add custom items cloned from vanilla items
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
+
+            // Add a cloned item with custom variants
+            ItemManager.OnVanillaItemsAvailable += AddVariants;
         }
 
         // Called every frame
@@ -229,6 +232,14 @@ namespace JotunnModExample
                     { "piece_lel", "Lölz" }, { "piece_lel_description", "Härhärhär" }
                 }
             });
+
+            // Add translations for the custom item in AddVariants
+            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            {
+                Translations = {
+                    { "lulz_shield", "Lulz Shield" }, { "lulz_shield_desc", "Lough at your enemies" }
+                }
+            });
         }
 
         // Register new console commands
@@ -273,7 +284,7 @@ namespace JotunnModExample
             ItemManager.Instance.AddRecipe(meatRecipe);
 
             // Load recipes from JSON file
-            //ItemManager.Instance.AddRecipesFromJson("JotunnModExample/Assets/recipes.json");
+            ItemManager.Instance.AddRecipesFromJson("JotunnModExample/Assets/recipes.json");
         }
 
         // Add new status effects
@@ -636,6 +647,41 @@ namespace JotunnModExample
                 }
             };
             GUIManager.Instance.AddKeyHint(KHC);
+        }
+
+        // Clone the wooden shield and add own variations to it
+        private void AddVariants()
+        {
+            try
+            {
+                Sprite var1 = AssetUtils.LoadSpriteFromFile("JotunnModExample/Assets/test_var1.png");
+                Sprite var2 = AssetUtils.LoadSpriteFromFile("JotunnModExample/Assets/test_var2.png");
+                Texture2D styleTex = AssetUtils.LoadTexture("JotunnModExample/Assets/test_varpaint.png");
+                CustomItem CI = new CustomItem("item_lulvariants", "ShieldWood", new ItemConfig
+                {
+                    Name = "$lulz_shield",
+                    Description = "$lulz_shield_desc",
+                    Requirements = new RequirementConfig[]
+                    {
+                        new RequirementConfig{ Item = "Wood", Amount = 1 }
+                    },
+                    Icons = new Sprite[]
+                    {
+                        var1, var2
+                    },
+                    StyleTex = styleTex
+                });
+                ItemManager.Instance.AddItem(CI);
+            }
+            catch (Exception ex)
+            {
+                Jotunn.Logger.LogError($"Error while adding variant item: {ex}");
+            }
+            finally
+            {
+                // You want that to run only once, Jotunn has the item cached for the game session
+                ItemManager.OnVanillaItemsAvailable -= AddVariants;
+            }
         }
     }
 }

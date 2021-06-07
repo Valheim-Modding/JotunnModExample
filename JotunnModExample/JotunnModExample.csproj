@@ -80,6 +80,7 @@
     <EmbeddedResource Include="AssetsEmbedded\eviesbackpacks" />
     <EmbeddedResource Include="AssetsEmbedded\steel" />
     <None Include="Assets\jotunnlibtest" />
+    <None Include="Assets\recipes.json" />
     <None Include="Assets\testblueprints" />
     <None Include="Assets\Translations\English\backpack.english.json" />
     <None Include="packages.config" />
@@ -94,6 +95,9 @@
   <ItemGroup>
     <Content Include="Assets\reee.png" />
     <Content Include="Assets\test_tex.jpg" />
+    <Content Include="Assets\test_var1.png" />
+    <Content Include="Assets\test_var2.png" />
+    <Content Include="Assets\test_varpaint.png" />
     <Content Include="Package\icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
