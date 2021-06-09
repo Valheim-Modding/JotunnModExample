@@ -29,20 +29,33 @@ namespace JotunnModExample
         public const string PluginName = "JotunnModExample";
         public const string PluginVersion = "1.0.0";
 
+        // Asset and prefab loading
         private AssetBundle testAssets;
         private AssetBundle blueprintRuneBundle;
         private AssetBundle steelIngotBundle;
         private AssetBundle embeddedResourceBundle;
+        private GameObject backpackPrefab;
 
-        private bool showGUI = false;
-
+        // Test assets
         private Texture2D testTex;
         private Sprite testSprite;
         private GameObject testPanel;
 
+        // Fixed buttons
+        private ButtonConfig showGUIButton;
+        private ButtonConfig raiseSkillButton;
+
+        // Variable button backed by a config
+        private ConfigEntry<KeyCode> evilSwordSpecialConfig;
+        private ButtonConfig evilSwordSpecialButton;
+
+        // Menu toggle
+        private bool showGUI = false;
+
+        // Custom skill
         private Skills.SkillType testSkill = 0;
-        private GameObject backpackPrefab;
-        private ButtonConfig evilSwordSpecial;
+
+        // Custom status effect
         private CustomStatusEffect evilSwordEffect;
 
         private void Awake()
@@ -77,25 +90,27 @@ namespace JotunnModExample
             {
                 // Check if our button is pressed. This will only return true ONCE, right after our button is pressed.
                 // If we hold the button down, it won't spam toggle our menu.
-                if (ZInput.GetButtonDown("JotunnModExample_Menu"))
+                if (ZInput.GetButtonDown(showGUIButton.Name))
                 {
                     showGUI = !showGUI;
                 }
 
-                // Use the name of the ButtonConfig to identify the button pressed
-                if (evilSwordSpecial != null && MessageHud.instance != null)
+                // Raise the test skill
+                if (Player.m_localPlayer != null && ZInput.GetButtonDown(raiseSkillButton.Name))
                 {
-                    if (ZInput.GetButtonDown(evilSwordSpecial.Name) && MessageHud.instance.m_msgQeue.Count == 0)
+                    Player.m_localPlayer.RaiseSkill(testSkill, 1f);
+                }
+
+                // Use the name of the ButtonConfig to identify the button pressed
+                // without knowing what key the user bound to this button in his configuration.
+                if (evilSwordSpecialButton != null && MessageHud.instance != null)
+                {
+                    if (ZInput.GetButtonDown(evilSwordSpecialButton.Name) && MessageHud.instance.m_msgQeue.Count == 0)
                     {
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$evilsword_beevilmessage");
                     }
                 }
 
-                // Raise the test skill
-                if (Player.m_localPlayer != null && ZInput.GetButtonDown("JotunnExampleMod_RaiseSkill"))
-                {
-                    Player.m_localPlayer.RaiseSkill(testSkill, 1f);
-                }
             }
         }
 
@@ -143,11 +158,9 @@ namespace JotunnModExample
             Config.Bind("Server config", "FloatValue1", 750f, new ConfigDescription("Server side float", new AcceptableValueRange<float>(0f, 1000f), new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("Server config", "IntegerValue1", 200, new ConfigDescription("Server side integer", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("Server config", "BoolValue1", false, new ConfigDescription("Server side bool", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            Config.Bind("Server config", "KeycodeValue", KeyCode.F10,
-                new ConfigDescription("Server side Keycode", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
 
             // Add a client side custom input key for the EvilSword
-            Config.Bind("Client config", "EvilSwordSpecialAttack", KeyCode.B, new ConfigDescription("Key to unleash evil with the Evil Sword"));
+            evilSwordSpecialConfig = Config.Bind("Client config", "EvilSword Special Attack", KeyCode.B, new ConfigDescription("Key to unleash evil with the Evil Sword"));
 
             // You can subscribe to a global event when config got synced initially and on changes
             SynchronizationManager.OnConfigurationSynchronized += (obj, attr) =>
@@ -185,20 +198,29 @@ namespace JotunnModExample
         private void AddInputs()
         {
             // Add key bindings on the fly
-            InputManager.Instance.AddButton(PluginGUID, "JotunnModExample_Menu", KeyCode.Insert);
+            showGUIButton = new ButtonConfig
+            {
+                Name = "JotunnModExample_Menu",
+                Key = KeyCode.Insert
+            };
+            InputManager.Instance.AddButton(PluginGUID, showGUIButton);
+
+            raiseSkillButton = new ButtonConfig
+            {
+                Name = "JotunnExampleMod_RaiseSkill",
+                Key = KeyCode.Home
+            };
+            InputManager.Instance.AddButton(PluginGUID, raiseSkillButton);
 
             // Add key bindings backed by a config value
-            // Create a ButtonConfig to also add it as a custom key hint in AddClonedItems
-            evilSwordSpecial = new ButtonConfig
+            // The HintToken is used for the custom KeyHint of the EvilSword
+            evilSwordSpecialButton = new ButtonConfig
             {
                 Name = "EvilSwordSpecialAttack",
-                Key = (KeyCode)Config["Client config", "EvilSwordSpecialAttack"].BoxedValue,
+                Config = evilSwordSpecialConfig,
                 HintToken = "$evilsword_beevil"
             };
-            InputManager.Instance.AddButton(PluginGUID, evilSwordSpecial);
-
-            // Add a key binding to test skill raising
-            InputManager.Instance.AddButton(PluginGUID, "JotunnExampleMod_RaiseSkill", KeyCode.Home);
+            InputManager.Instance.AddButton(PluginGUID, evilSwordSpecialButton);
         }
 
         // Adds localizations with configs
@@ -629,7 +651,8 @@ namespace JotunnModExample
             ItemManager.Instance.AddRecipe(CR);
         }
 
-        // Implementation of key hints replacing vanilla keys and using custom keys
+        // Implementation of key hints replacing vanilla keys and using custom keys.
+        // KeyHints appear in the same order in which they are defined in the config.
         private void KeyHintsEvilSword()
         {
             // Create custom KeyHints for the item
@@ -640,8 +663,8 @@ namespace JotunnModExample
                 {
                     // Override vanilla "Attack" key text
                     new ButtonConfig { Name = "Attack", HintToken = "$evilsword_shwing" },
-                    // New custom input
-                    evilSwordSpecial,
+                    // User our custom button defined earlier, syncs with the backing config value
+                    evilSwordSpecialButton,
                     // Override vanilla "Mouse Wheel" text
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$evilsword_scroll" }
                 }
