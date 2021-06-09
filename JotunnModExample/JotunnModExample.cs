@@ -159,6 +159,14 @@ namespace JotunnModExample
             Config.Bind("Server config", "IntegerValue1", 200, new ConfigDescription("Server side integer", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("Server config", "BoolValue1", false, new ConfigDescription("Server side bool", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
+            // Colored text configs
+            Config.Bind("Client config", "ColoredValue", false,
+                new ConfigDescription("Colored key and description text", null, new ConfigurationManagerAttributes { EntryColor = Color.blue, DescriptionColor = Color.yellow }));
+
+            // Invisible configs
+            Config.Bind("Client config", "InvisibleInt", 150,
+                new ConfigDescription("Invisible int, testing browsable=false", null, new ConfigurationManagerAttributes() { Browsable = false }));
+
             // Add a client side custom input key for the EvilSword
             evilSwordSpecialConfig = Config.Bind("Client config", "EvilSword Special Attack", KeyCode.B, new ConfigDescription("Key to unleash evil with the Evil Sword"));
 
