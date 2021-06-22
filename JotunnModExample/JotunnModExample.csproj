@@ -79,6 +79,7 @@
     <None Include="app.config" />
     <EmbeddedResource Include="AssetsEmbedded\eviesbackpacks" />
     <EmbeddedResource Include="AssetsEmbedded\steel" />
+    <EmbeddedResource Include="AssetsEmbedded\kitbash" />
     <None Include="Assets\jotunnlibtest" />
     <None Include="Assets\recipes.json" />
     <None Include="Assets\testblueprints" />
