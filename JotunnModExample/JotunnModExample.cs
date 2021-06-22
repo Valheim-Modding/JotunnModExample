@@ -30,33 +30,39 @@ namespace JotunnModExample
         public const string PluginVersion = "1.0.0";
 
         // Asset and prefab loading
-        private AssetBundle testAssets;
-        private AssetBundle blueprintRuneBundle;
-        private AssetBundle steelIngotBundle;
-        private AssetBundle embeddedResourceBundle;
-        private GameObject backpackPrefab;
+        private AssetBundle TestAssets;
+        private AssetBundle BlueprintRuneBundle;
+        private AssetBundle SteelIngotBundle;
+        private AssetBundle EmbeddedResourceBundle;
+        private GameObject BackpackPrefab;
 
         // Test assets
-        private Texture2D testTex;
-        private Sprite testSprite;
-        private GameObject testPanel;
+        private Texture2D TestTex;
+        private Sprite TestSprite;
+        private GameObject TestPanel;
 
         // Fixed buttons
-        private ButtonConfig showGUIButton;
-        private ButtonConfig raiseSkillButton;
+        private ButtonConfig ShowGUIButton;
+        private ButtonConfig RaiseSkillButton;
 
         // Variable button backed by a config
-        private ConfigEntry<KeyCode> evilSwordSpecialConfig;
-        private ButtonConfig evilSwordSpecialButton;
+        private ConfigEntry<KeyCode> EvilSwordSpecialConfig;
+        private ButtonConfig EvilSwordSpecialButton;
 
         // Menu toggle
-        private bool showGUI = false;
+        private bool ShowGUI = false;
+
+        // Configuration values
+        private ConfigEntry<string> StringConfig;
+        private ConfigEntry<float> FloatConfig;
+        private ConfigEntry<int> IntegerConfig;
+        private ConfigEntry<bool> BoolConfig;
 
         // Custom skill
-        private Skills.SkillType testSkill = 0;
+        private Skills.SkillType TestSkill = 0;
 
         // Custom status effect
-        private CustomStatusEffect evilSwordEffect;
+        private CustomStatusEffect EvilSwordEffect;
 
         private void Awake()
         {
@@ -90,22 +96,22 @@ namespace JotunnModExample
             {
                 // Check if our button is pressed. This will only return true ONCE, right after our button is pressed.
                 // If we hold the button down, it won't spam toggle our menu.
-                if (ZInput.GetButtonDown(showGUIButton.Name))
+                if (ZInput.GetButtonDown(ShowGUIButton.Name))
                 {
-                    showGUI = !showGUI;
+                    ShowGUI = !ShowGUI;
                 }
 
                 // Raise the test skill
-                if (Player.m_localPlayer != null && ZInput.GetButtonDown(raiseSkillButton.Name))
+                if (Player.m_localPlayer != null && ZInput.GetButtonDown(RaiseSkillButton.Name))
                 {
-                    Player.m_localPlayer.RaiseSkill(testSkill, 1f);
+                    Player.m_localPlayer.RaiseSkill(TestSkill, 1f);
                 }
 
                 // Use the name of the ButtonConfig to identify the button pressed
                 // without knowing what key the user bound to this button in his configuration.
-                if (evilSwordSpecialButton != null && MessageHud.instance != null)
+                if (EvilSwordSpecialButton != null && MessageHud.instance != null)
                 {
-                    if (ZInput.GetButtonDown(evilSwordSpecialButton.Name) && MessageHud.instance.m_msgQeue.Count == 0)
+                    if (ZInput.GetButtonDown(EvilSwordSpecialButton.Name) && MessageHud.instance.m_msgQeue.Count == 0)
                     {
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$evilsword_beevilmessage");
                     }
@@ -118,9 +124,9 @@ namespace JotunnModExample
         private void OnGUI()
         {
             // Display an example panel with button if enabled
-            if (showGUI)
+            if (ShowGUI)
             {
-                if (testPanel == null)
+                if (TestPanel == null)
                 {
                     if (GUIManager.Instance == null)
                     {
@@ -133,24 +139,30 @@ namespace JotunnModExample
                         Logger.LogError("GUIManager pixelfix is null");
                         return;
                     }
-                    testPanel = GUIManager.Instance.CreateWoodpanel(GUIManager.PixelFix.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), 850, 600);
+                    TestPanel = GUIManager.Instance.CreateWoodpanel(GUIManager.PixelFix.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), 850, 600);
 
-                    GUIManager.Instance.CreateButton("A Test Button - long dong schlongsen text", testPanel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                    GUIManager.Instance.CreateButton("A Test Button - long dong schlongsen text", TestPanel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                         new Vector2(0, 0), 250, 100).SetActive(true);
-                    if (testPanel == null)
+                    if (TestPanel == null)
                     {
                         return;
                     }
                 }
-                testPanel.SetActive(!testPanel.activeSelf);
-                showGUI = false;
+                TestPanel.SetActive(!TestPanel.activeSelf);
+                ShowGUI = false;
             }
         }
 
-        // Create some sample configuration values to check server sync
+        // Create some sample configuration values
         private void CreateConfigValues()
         {
             Config.SaveOnConfigSet = true;
+
+            // Add client config which can be edited in every local instance independently
+            StringConfig = Config.Bind("Client config", "LocalString", "Some string", "Client side string");
+            FloatConfig = Config.Bind("Client config", "LocalFloat", 0.5f, new ConfigDescription("Client side float with a value range", new AcceptableValueRange<float>(0f, 1f)));
+            IntegerConfig = Config.Bind("Client config", "LocalInteger", 2, new ConfigDescription("Client side integer without a range"));
+            BoolConfig = Config.Bind("Client config", "LocalBool", false, new ConfigDescription("Client side bool / checkbox"));
 
             // Add server config which gets pushed to all clients connecting and can only be edited by admins
             // In local/single player games the player is always considered the admin
@@ -168,7 +180,7 @@ namespace JotunnModExample
                 new ConfigDescription("Invisible int, testing browsable=false", null, new ConfigurationManagerAttributes() { Browsable = false }));
 
             // Add a client side custom input key for the EvilSword
-            evilSwordSpecialConfig = Config.Bind("Client config", "EvilSword Special Attack", KeyCode.B, new ConfigDescription("Key to unleash evil with the Evil Sword"));
+            EvilSwordSpecialConfig = Config.Bind("Client config", "EvilSword Special Attack", KeyCode.B, new ConfigDescription("Key to unleash evil with the Evil Sword"));
 
             // You can subscribe to a global event when config got synced initially and on changes
             SynchronizationManager.OnConfigurationSynchronized += (obj, attr) =>
@@ -184,52 +196,65 @@ namespace JotunnModExample
             };
         }
 
+        private void ReadAndWriteConfigValues()
+        {
+            // Reading configuration entry
+            string readValue = StringConfig.Value;
+            // or
+            float readBoxedValue = (float)Config["Client config", "LocalFloat"].BoxedValue;
+
+            // Writing configuration entry
+            IntegerConfig.Value = 150;
+            // or
+            Config["Client config", "LocalBool"].BoxedValue = true;
+        }
+
         // Various forms of asset loading
         private void LoadAssets()
         {
             // Load texture from the filesystem
-            testTex = AssetUtils.LoadTexture("JotunnModExample/Assets/test_tex.jpg");
-            testSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
+            TestTex = AssetUtils.LoadTexture("JotunnModExample/Assets/test_tex.jpg");
+            TestSprite = Sprite.Create(TestTex, new Rect(0f, 0f, TestTex.width, TestTex.height), Vector2.zero);
 
             // Load asset bundle from the filesystem
-            testAssets = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/jotunnlibtest");
-            Jotunn.Logger.LogInfo(testAssets);
+            TestAssets = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/jotunnlibtest");
+            Jotunn.Logger.LogInfo(TestAssets);
 
             // Load asset bundle from embedded resources
             Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(",", typeof(JotunnModExample).Assembly.GetManifestResourceNames())}");
-            embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", typeof(JotunnModExample).Assembly);
-            backpackPrefab = embeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
-            steelIngotBundle = AssetUtils.LoadAssetBundleFromResources("steel", typeof(JotunnModExample).Assembly);
+            EmbeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", typeof(JotunnModExample).Assembly);
+            BackpackPrefab = EmbeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
+            SteelIngotBundle = AssetUtils.LoadAssetBundleFromResources("steel", typeof(JotunnModExample).Assembly);
         }
 
         // Add custom key bindings
         private void AddInputs()
         {
             // Add key bindings on the fly
-            showGUIButton = new ButtonConfig
+            ShowGUIButton = new ButtonConfig
             {
                 Name = "JotunnModExample_Menu",
                 Key = KeyCode.Insert,
                 ActiveInGUI = true    // Enable this button also when in GUI (e.g. the console)
             };
-            InputManager.Instance.AddButton(PluginGUID, showGUIButton);
+            InputManager.Instance.AddButton(PluginGUID, ShowGUIButton);
 
-            raiseSkillButton = new ButtonConfig
+            RaiseSkillButton = new ButtonConfig
             {
                 Name = "JotunnExampleMod_RaiseSkill",
                 Key = KeyCode.Home
             };
-            InputManager.Instance.AddButton(PluginGUID, raiseSkillButton);
+            InputManager.Instance.AddButton(PluginGUID, RaiseSkillButton);
 
             // Add key bindings backed by a config value
             // The HintToken is used for the custom KeyHint of the EvilSword
-            evilSwordSpecialButton = new ButtonConfig
+            EvilSwordSpecialButton = new ButtonConfig
             {
                 Name = "EvilSwordSpecialAttack",
-                Config = evilSwordSpecialConfig,
+                Config = EvilSwordSpecialConfig,
                 HintToken = "$evilsword_beevil"
             };
-            InputManager.Instance.AddButton(PluginGUID, evilSwordSpecialButton);
+            InputManager.Instance.AddButton(PluginGUID, EvilSwordSpecialButton);
         }
 
         // Adds localizations with configs
@@ -288,8 +313,8 @@ namespace JotunnModExample
         void AddSkills()
         {
             // Test adding a skill with a texture
-            Sprite testSkillSprite = Sprite.Create(testTex, new Rect(0f, 0f, testTex.width, testTex.height), Vector2.zero);
-            testSkill = SkillManager.Instance.AddSkill(new SkillConfig
+            Sprite testSkillSprite = Sprite.Create(TestTex, new Rect(0f, 0f, TestTex.width, TestTex.height), Vector2.zero);
+            TestSkill = SkillManager.Instance.AddSkill(new SkillConfig
             {
                 Identifier = "com.jotunn.JotunnModExample.testskill",
                 Name = "TestingSkill",
@@ -332,8 +357,8 @@ namespace JotunnModExample
             effect.m_stopMessageType = MessageHud.MessageType.Center;
             effect.m_stopMessage = "$evilsword_effectstop";
 
-            evilSwordEffect = new CustomStatusEffect(effect, fixReference: false);  // We dont need to fix refs here, because no mocks were used
-            ItemManager.Instance.AddStatusEffect(evilSwordEffect);
+            EvilSwordEffect = new CustomStatusEffect(effect, fixReference: false);  // We dont need to fix refs here, because no mocks were used
+            ItemManager.Instance.AddStatusEffect(EvilSwordEffect);
         }
 
         // Add custom item conversions
@@ -367,7 +392,7 @@ namespace JotunnModExample
             ItemManager.Instance.AddItemConversion(smeltConversion);
 
             // Load and create a custom item to use in another conversion
-            var steel_prefab = steelIngotBundle.LoadAsset<GameObject>("Steel");
+            var steel_prefab = SteelIngotBundle.LoadAsset<GameObject>("Steel");
             var ingot = new CustomItem(steel_prefab, fixReference: false);
             ItemManager.Instance.AddItem(ingot);
 
@@ -385,8 +410,8 @@ namespace JotunnModExample
         private void AddItemsWithConfigs()
         {
             // Load asset bundle from the filesystem
-            blueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/testblueprints");
-            Jotunn.Logger.LogInfo($"Loaded asset bundle: {blueprintRuneBundle}");
+            BlueprintRuneBundle = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/testblueprints");
+            Jotunn.Logger.LogInfo($"Loaded asset bundle: {BlueprintRuneBundle}");
 
             // Load and add all our custom stuff to Jötunn
             CreateRunePieceTable();
@@ -395,12 +420,12 @@ namespace JotunnModExample
             CreateRuneKeyHints();
 
             // Don't forget to unload the bundle to free the resources
-            blueprintRuneBundle.Unload(false);
+            BlueprintRuneBundle.Unload(false);
         }
 
         private void CreateRunePieceTable()
         {
-            GameObject tablePrefab = blueprintRuneBundle.LoadAsset<GameObject>("_BlueprintTestTable");
+            GameObject tablePrefab = BlueprintRuneBundle.LoadAsset<GameObject>("_BlueprintTestTable");
             CustomPieceTable CPT = new CustomPieceTable(tablePrefab);
             PieceManager.Instance.AddPieceTable(CPT);
         }
@@ -409,7 +434,7 @@ namespace JotunnModExample
         private void CreateBlueprintRune()
         {
             // Create and add a custom item
-            var rune_prefab = blueprintRuneBundle.LoadAsset<GameObject>("BlueprintTestRune");
+            var rune_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("BlueprintTestRune");
             var rune = new CustomItem(rune_prefab, fixReference: false,
                 new ItemConfig
                 {
@@ -432,7 +457,7 @@ namespace JotunnModExample
         private void CreateRunePieces()
         {
             // Create and add a custom piece for the rune. Add the prefab name of the PieceTable to the config.
-            var makebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("make_testblueprint");
+            var makebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("make_testblueprint");
             var makebp = new CustomPiece(makebp_prefab,
                 new PieceConfig
                 {
@@ -442,7 +467,7 @@ namespace JotunnModExample
 
             // Load, create and add another custom piece for the rune. This piece uses more properties
             // of the PieceConfig - it can now be build in dungeons and has actual requirements to build it.
-            var placebp_prefab = blueprintRuneBundle.LoadAsset<GameObject>("piece_testblueprint");
+            var placebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("piece_testblueprint");
             var placebp = new CustomPiece(placebp_prefab,
                 new PieceConfig
                 {
@@ -468,7 +493,7 @@ namespace JotunnModExample
         // Add localisations from asset bundles
         private void BlueprintRuneLocalizations()
         {
-            TextAsset[] textAssets = blueprintRuneBundle.LoadAllAssets<TextAsset>();
+            TextAsset[] textAssets = BlueprintRuneBundle.LoadAllAssets<TextAsset>();
             foreach (var textAsset in textAssets)
             {
                 var lang = textAsset.name.Replace(".json", null);
@@ -529,7 +554,7 @@ namespace JotunnModExample
             {
                 Name = "$piece_lul",
                 Description = "$piece_lul_description",
-                Icon = testSprite,
+                Icon = TestSprite,
                 PieceTable = "Hammer",
                 ExtendStation = "piece_workbench", // Makes this piece a station extension
                 Category = "Lulzies"  // Adds a custom category for the Hammer
@@ -539,7 +564,7 @@ namespace JotunnModExample
             {
                 // Add our test texture to the Unity MeshRenderer
                 var prefab = CP.PiecePrefab;
-                prefab.GetComponent<MeshRenderer>().material.mainTexture = testTex;
+                prefab.GetComponent<MeshRenderer>().material.mainTexture = TestTex;
 
                 PieceManager.Instance.AddPiece(CP);
             }
@@ -549,7 +574,7 @@ namespace JotunnModExample
             {
                 Name = "$piece_lel",
                 Description = "$piece_lel_description",
-                Icon = testSprite,
+                Icon = TestSprite,
                 PieceTable = "Hammer",
                 ExtendStation = "piece_workbench", // Makes this piece a station extension
                 Category = "Lulzies"  // Adds a custom category for the Hammer
@@ -559,7 +584,7 @@ namespace JotunnModExample
             {
                 // Add our test texture to the Unity MeshRenderer and make the material color grey
                 var prefab = CP.PiecePrefab;
-                prefab.GetComponent<MeshRenderer>().material.mainTexture = testTex;
+                prefab.GetComponent<MeshRenderer>().material.mainTexture = TestTex;
                 prefab.GetComponent<MeshRenderer>().material.color = Color.grey;
 
                 PieceManager.Instance.AddPiece(CP);
@@ -569,17 +594,17 @@ namespace JotunnModExample
         // Implementation of assets using mocks, adding recipe's manually without the config abstraction
         private void AddMockedItems()
         {
-            if (!backpackPrefab) Jotunn.Logger.LogWarning($"Failed to load asset from bundle: {embeddedResourceBundle}");
+            if (!BackpackPrefab) Jotunn.Logger.LogWarning($"Failed to load asset from bundle: {EmbeddedResourceBundle}");
             else
             {
                 // Create and add a custom item
-                CustomItem CI = new CustomItem(backpackPrefab, true);
+                CustomItem CI = new CustomItem(BackpackPrefab, true);
                 ItemManager.Instance.AddItem(CI);
 
                 //Create and add a custom recipe
                 Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
                 recipe.name = "Recipe_CapeIronBackpack";
-                recipe.m_item = backpackPrefab.GetComponent<ItemDrop>();
+                recipe.m_item = BackpackPrefab.GetComponent<ItemDrop>();
                 recipe.m_craftingStation = Mock<CraftingStation>.Create("piece_workbench");
                 var ingredients = new List<Piece.Requirement>
                 {
@@ -594,7 +619,7 @@ namespace JotunnModExample
                 //Enable BoneReorder
                 BoneReorder.ApplyOnEquipmentChanged();
             }
-            embeddedResourceBundle.Unload(false);
+            EmbeddedResourceBundle.Unload(false);
         }
 
         // Implementation of cloned items
@@ -673,7 +698,7 @@ namespace JotunnModExample
                     // Override vanilla "Attack" key text
                     new ButtonConfig { Name = "Attack", HintToken = "$evilsword_shwing" },
                     // User our custom button defined earlier, syncs with the backing config value
-                    evilSwordSpecialButton,
+                    EvilSwordSpecialButton,
                     // Override vanilla "Mouse Wheel" text
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$evilsword_scroll" }
                 }
