@@ -197,6 +197,7 @@ namespace JotunnModExample
             };
         }
 
+        // Examples for reading and writing configuration values
         private void ReadAndWriteConfigValues()
         {
             // Reading configuration entry
