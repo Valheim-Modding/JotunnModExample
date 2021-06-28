@@ -15,6 +15,7 @@ using JotunnModExample.ConsoleCommands;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Logger = Jotunn.Logger;
 
 namespace JotunnModExample
@@ -48,9 +49,6 @@ namespace JotunnModExample
         // Variable button backed by a config
         private ConfigEntry<KeyCode> EvilSwordSpecialConfig;
         private ButtonConfig EvilSwordSpecialButton;
-
-        // Menu toggle
-        private bool ShowGUI = false;
 
         // Configuration values
         private ConfigEntry<string> StringConfig;
@@ -99,7 +97,7 @@ namespace JotunnModExample
                 // If we hold the button down, it won't spam toggle our menu.
                 if (ZInput.GetButtonDown(ShowGUIButton.Name))
                 {
-                    ShowGUI = !ShowGUI;
+                    TogglePanel();
                 }
 
                 // Raise the test skill
@@ -121,37 +119,50 @@ namespace JotunnModExample
             }
         }
 
-        // Called every frame for rendering and handling GUI events
-        private void OnGUI()
+        // Toggle our test panel with button
+        private void TogglePanel()
         {
-            // Display an example panel with button if enabled
-            if (ShowGUI)
+            // Create the panel if it does not exist
+            if (TestPanel == null)
             {
-                if (TestPanel == null)
+                if (GUIManager.Instance == null)
                 {
-                    if (GUIManager.Instance == null)
-                    {
-                        Logger.LogError("GUIManager instance is null");
-                        return;
-                    }
-
-                    if (GUIManager.PixelFix == null)
-                    {
-                        Logger.LogError("GUIManager pixelfix is null");
-                        return;
-                    }
-                    TestPanel = GUIManager.Instance.CreateWoodpanel(GUIManager.PixelFix.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), 850, 600);
-
-                    GUIManager.Instance.CreateButton("A Test Button - long dong schlongsen text", TestPanel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                        new Vector2(0, 0), 250, 100).SetActive(true);
-                    if (TestPanel == null)
-                    {
-                        return;
-                    }
+                    Logger.LogError("GUIManager instance is null");
+                    return;
                 }
-                TestPanel.SetActive(!TestPanel.activeSelf);
-                ShowGUI = false;
+
+                if (GUIManager.PixelFix == null)
+                {
+                    Logger.LogError("GUIManager pixelfix is null");
+                    return;
+                }
+
+                // Create the panel object
+                TestPanel = GUIManager.Instance.CreateWoodpanel(GUIManager.PixelFix.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                    new Vector2(0, 0), 850, 600);
+                TestPanel.SetActive(false);
+
+                // Create the button object
+                GameObject buttonObject = GUIManager.Instance.CreateButton("A Test Button - long dong schlongsen text", TestPanel.transform,
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), 250, 100);
+                buttonObject.SetActive(true);
+
+                // Add a listener to the button to close the panel again
+                Button button = buttonObject.GetComponent<Button>();
+                button.onClick.AddListener(() =>
+                {
+                    TogglePanel();
+                });
             }
+
+            // Switch the current state
+            bool state = !TestPanel.activeSelf;
+            
+            // Set the active state of the panel
+            TestPanel.SetActive(state);
+
+            // Disable input for the player and camera while displaying the GUI
+            GUIManager.BlockInput(state);
         }
 
         // Create some sample configuration values
