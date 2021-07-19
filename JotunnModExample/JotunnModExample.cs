@@ -9,6 +9,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using Jotunn.Configs;
 using Jotunn.Entities;
+using Jotunn.GUI;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using JotunnModExample.ConsoleCommands;
@@ -29,7 +30,7 @@ namespace JotunnModExample
     {
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "2.2.0";
 
         // Asset and prefab loading
         private AssetBundle TestAssets;
@@ -180,9 +181,22 @@ namespace JotunnModExample
         // Create a new ColorPicker when hovering a piece
         private void CreateColorPicker()
         {
+            if (GUIManager.Instance == null)
+            {
+                Logger.LogError("GUIManager instance is null");
+                return;
+            }
+
+            if (GUIManager.PixelFix == null)
+            {
+                Logger.LogError("GUIManager pixelfix is null");
+                return;
+            }
+
             // Check the main scene and if the ColorPicker is not already displayed
             if (SceneManager.GetActiveScene().name == "main" && ColorPicker.done)
             {
+                // Get the hovered piece and add our ColorChanger component to it
                 var hovered = Player.m_localPlayer.GetHoverObject();
                 var current = hovered.GetComponentInChildren<Renderer>();
                 if (current != null)
@@ -206,12 +220,20 @@ namespace JotunnModExample
         {
             if (GUIManager.Instance == null)
             {
-                Jotunn.Logger.LogError("GUIManager instance is null");
+                Logger.LogError("GUIManager instance is null");
                 return;
             }
 
+            if (GUIManager.PixelFix == null)
+            {
+                Logger.LogError("GUIManager pixelfix is null");
+                return;
+            }
+
+            // Check the main scene and if the GradientPicker is not already displayed
             if (SceneManager.GetActiveScene().name == "main" && GradientPicker.done)
             {
+                // Get the hovered piece and add our GradientChanger component to it
                 var hovered = Player.m_localPlayer.GetHoverObject();
                 var current = hovered.GetComponentInChildren<Renderer>();
                 if (current != null)
