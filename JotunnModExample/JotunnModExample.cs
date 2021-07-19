@@ -15,6 +15,7 @@ using JotunnModExample.ConsoleCommands;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Logger = Jotunn.Logger;
 
@@ -45,6 +46,8 @@ namespace JotunnModExample
         // Fixed buttons
         private ButtonConfig ShowGUIButton;
         private ButtonConfig RaiseSkillButton;
+        private ButtonConfig CreateColorPickerButton;
+        private ButtonConfig CreateGradientPickerButton;
 
         // Variable button backed by a config
         private ConfigEntry<KeyCode> EvilSwordSpecialConfig;
@@ -116,6 +119,15 @@ namespace JotunnModExample
                     }
                 }
 
+                // Show ColorPicker or GradientPicker via GUIManager
+                if (ZInput.GetButtonDown(CreateColorPickerButton.Name))
+                {
+                    CreateColorPicker();
+                }
+                if (ZInput.GetButtonDown(CreateGradientPickerButton.Name))
+                {
+                    CreateGradientPicker();
+                }
             }
         }
 
@@ -163,6 +175,58 @@ namespace JotunnModExample
 
             // Disable input for the player and camera while displaying the GUI
             GUIManager.BlockInput(state);
+        }
+
+        // Create a new ColorPicker when hovering a piece
+        private void CreateColorPicker()
+        {
+            // Check the main scene and if the ColorPicker is not already displayed
+            if (SceneManager.GetActiveScene().name == "main" && ColorPicker.done)
+            {
+                var hovered = Player.m_localPlayer.GetHoverObject();
+                var current = hovered.GetComponentInChildren<Renderer>();
+                if (current != null)
+                {
+                    current.gameObject.AddComponent<ColorChanger>();
+                }
+                else
+                {
+                    var parent = hovered.transform.parent.gameObject.GetComponentInChildren<Renderer>();
+                    if (parent != null)
+                    {
+                        parent.gameObject.AddComponent<ColorChanger>();
+                    }
+                }
+            }
+
+        }
+
+        // Create a new GradientPicker
+        private void CreateGradientPicker()
+        {
+            if (GUIManager.Instance == null)
+            {
+                Jotunn.Logger.LogError("GUIManager instance is null");
+                return;
+            }
+
+            if (SceneManager.GetActiveScene().name == "main" && GradientPicker.done)
+            {
+                var hovered = Player.m_localPlayer.GetHoverObject();
+                var current = hovered.GetComponentInChildren<Renderer>();
+                if (current != null)
+                {
+                    current.gameObject.AddComponent<GradientChanger>();
+                }
+                else
+                {
+                    var parent = hovered.transform.parent.gameObject.GetComponentInChildren<Renderer>();
+                    if (parent != null)
+                    {
+                        parent.gameObject.AddComponent<GradientChanger>();
+                    }
+                }
+            }
         }
 
         // Create some sample configuration values
@@ -258,6 +322,22 @@ namespace JotunnModExample
                 Key = KeyCode.Home
             };
             InputManager.Instance.AddButton(PluginGUID, RaiseSkillButton);
+
+            CreateColorPickerButton = new ButtonConfig
+            {
+                Name = "JotunnModExample_ColorPicker",
+                Key = KeyCode.PageUp,
+                ActiveInGUI = true
+            };
+            InputManager.Instance.AddButton(PluginGUID, CreateColorPickerButton);
+
+            CreateGradientPickerButton = new ButtonConfig
+            {
+                Name = "JotunnModExample_GradientPicker",
+                Key = KeyCode.PageDown,
+                ActiveInGUI = true
+            };
+            InputManager.Instance.AddButton(PluginGUID, CreateGradientPickerButton);
 
             // Add key bindings backed by a config value
             // The HintToken is used for the custom KeyHint of the EvilSword
