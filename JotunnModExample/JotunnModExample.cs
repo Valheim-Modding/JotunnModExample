@@ -9,12 +9,15 @@ using BepInEx;
 using BepInEx.Configuration;
 using Jotunn.Configs;
 using Jotunn.Entities;
+using Jotunn.GUI;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using JotunnModExample.ConsoleCommands;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Logger = Jotunn.Logger;
 
@@ -28,7 +31,7 @@ namespace JotunnModExample
     {
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "2.2.0";
 
         // Asset and prefab loading
         private AssetBundle TestAssets;
@@ -45,6 +48,8 @@ namespace JotunnModExample
         // Fixed buttons
         private ButtonConfig ShowGUIButton;
         private ButtonConfig RaiseSkillButton;
+        private ButtonConfig CreateColorPickerButton;
+        private ButtonConfig CreateGradientPickerButton;
 
         // Variable button backed by a config
         private ConfigEntry<KeyCode> EvilSwordSpecialConfig;
@@ -116,6 +121,15 @@ namespace JotunnModExample
                     }
                 }
 
+                // Show ColorPicker or GradientPicker via GUIManager
+                if (ZInput.GetButtonDown(CreateColorPickerButton.Name))
+                {
+                    CreateColorPicker();
+                }
+                if (ZInput.GetButtonDown(CreateGradientPickerButton.Name))
+                {
+                    CreateGradientPicker();
+                }
             }
         }
 
@@ -138,13 +152,56 @@ namespace JotunnModExample
                 }
 
                 // Create the panel object
-                TestPanel = GUIManager.Instance.CreateWoodpanel(GUIManager.PixelFix.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                    new Vector2(0, 0), 850, 600);
+                TestPanel = GUIManager.Instance.CreateWoodpanel(
+                    parent: GUIManager.PixelFix.transform,
+                    anchorMin: new Vector2(0.5f, 0.5f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    position: new Vector2(0, 0),
+                    width: 850,
+                    height: 600,
+                    draggable: false);
                 TestPanel.SetActive(false);
 
+                // Add the Jötunn draggable Component to the panel
+                // Note: This is normally automatically added when using CreateWoodpanel()
+                DragWindowCntrl drag = TestPanel.AddComponent<DragWindowCntrl>();
+
+                // To actually be able to drag the panel, Unity events must be registered
+                EventTrigger trigger = TestPanel.AddComponent<EventTrigger>();
+                EventTrigger.Entry beginDragEntry = new EventTrigger.Entry();
+                beginDragEntry.eventID = EventTriggerType.BeginDrag;
+                beginDragEntry.callback.AddListener((data) => { drag.BeginDrag(); });
+                trigger.triggers.Add(beginDragEntry);
+                EventTrigger.Entry dragEntry = new EventTrigger.Entry();
+                dragEntry.eventID = EventTriggerType.Drag;
+                dragEntry.callback.AddListener((data) => { drag.Drag(); });
+                trigger.triggers.Add(dragEntry);
+
+                // Create the text object
+                GameObject textObject = GUIManager.Instance.CreateText(
+                    text: "Jötunn, the Valheim Lib",
+                    parent: TestPanel.transform,
+                    anchorMin: new Vector2(0.5f, 1f),
+                    anchorMax: new Vector2(0.5f, 1f),
+                    position: new Vector2(0f, -100f),
+                    font: GUIManager.Instance.AveriaSerifBold,
+                    fontSize: 30,
+                    color: GUIManager.Instance.ValheimOrange,
+                    outline: true,
+                    outlineColor: Color.black,
+                    width: 350f,
+                    height: 40f,
+                    addContentSizeFitter: false);
+
                 // Create the button object
-                GameObject buttonObject = GUIManager.Instance.CreateButton("A Test Button - long dong schlongsen text", TestPanel.transform,
-                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), 250, 100);
+                GameObject buttonObject = GUIManager.Instance.CreateButton(
+                    text: "A Test Button - long dong schlongsen text",
+                    parent: TestPanel.transform,
+                    anchorMin: new Vector2(0.5f, 0.5f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    position: new Vector2(0, 0),
+                    width: 250,
+                    height: 100);
                 buttonObject.SetActive(true);
 
                 // Add a listener to the button to close the panel again
@@ -157,12 +214,85 @@ namespace JotunnModExample
 
             // Switch the current state
             bool state = !TestPanel.activeSelf;
-            
+
             // Set the active state of the panel
             TestPanel.SetActive(state);
 
-            // Disable input for the player and camera while displaying the GUI
+            // Toggle input for the player and camera while displaying the GUI
             GUIManager.BlockInput(state);
+        }
+
+        // Create a new ColorPicker when hovering a piece
+        private void CreateColorPicker()
+        {
+            if (GUIManager.Instance == null)
+            {
+                Logger.LogError("GUIManager instance is null");
+                return;
+            }
+
+            if (GUIManager.PixelFix == null)
+            {
+                Logger.LogError("GUIManager pixelfix is null");
+                return;
+            }
+
+            // Check the main scene and if the ColorPicker is not already displayed
+            if (SceneManager.GetActiveScene().name == "main" && ColorPicker.done)
+            {
+                // Get the hovered piece and add our ColorChanger component to it
+                var hovered = Player.m_localPlayer.GetHoverObject();
+                var current = hovered.GetComponentInChildren<Renderer>();
+                if (current != null)
+                {
+                    current.gameObject.AddComponent<ColorChanger>();
+                }
+                else
+                {
+                    var parent = hovered.transform.parent.gameObject.GetComponentInChildren<Renderer>();
+                    if (parent != null)
+                    {
+                        parent.gameObject.AddComponent<ColorChanger>();
+                    }
+                }
+            }
+
+        }
+
+        // Create a new GradientPicker
+        private void CreateGradientPicker()
+        {
+            if (GUIManager.Instance == null)
+            {
+                Logger.LogError("GUIManager instance is null");
+                return;
+            }
+
+            if (GUIManager.PixelFix == null)
+            {
+                Logger.LogError("GUIManager pixelfix is null");
+                return;
+            }
+
+            // Check the main scene and if the GradientPicker is not already displayed
+            if (SceneManager.GetActiveScene().name == "main" && GradientPicker.done)
+            {
+                // Get the hovered piece and add our GradientChanger component to it
+                var hovered = Player.m_localPlayer.GetHoverObject();
+                var current = hovered.GetComponentInChildren<Renderer>();
+                if (current != null)
+                {
+                    current.gameObject.AddComponent<GradientChanger>();
+                }
+                else
+                {
+                    var parent = hovered.transform.parent.gameObject.GetComponentInChildren<Renderer>();
+                    if (parent != null)
+                    {
+                        parent.gameObject.AddComponent<GradientChanger>();
+                    }
+                }
+            }
         }
 
         // Create some sample configuration values
@@ -172,27 +302,42 @@ namespace JotunnModExample
 
             // Add client config which can be edited in every local instance independently
             StringConfig = Config.Bind("Client config", "LocalString", "Some string", "Client side string");
-            FloatConfig = Config.Bind("Client config", "LocalFloat", 0.5f, new ConfigDescription("Client side float with a value range", new AcceptableValueRange<float>(0f, 1f)));
-            IntegerConfig = Config.Bind("Client config", "LocalInteger", 2, new ConfigDescription("Client side integer without a range"));
-            BoolConfig = Config.Bind("Client config", "LocalBool", false, new ConfigDescription("Client side bool / checkbox"));
+            FloatConfig = Config.Bind("Client config", "LocalFloat", 0.5f, 
+                new ConfigDescription("Client side float with a value range", new AcceptableValueRange<float>(0f, 1f)));
+            IntegerConfig = Config.Bind("Client config", "LocalInteger", 2, 
+                new ConfigDescription("Client side integer without a range"));
+            BoolConfig = Config.Bind("Client config", "LocalBool", false, 
+                new ConfigDescription("Client side bool / checkbox"));
 
             // Add server config which gets pushed to all clients connecting and can only be edited by admins
             // In local/single player games the player is always considered the admin
-            Config.Bind("Server config", "StringValue1", "StringValue", new ConfigDescription("Server side string", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            Config.Bind("Server config", "FloatValue1", 750f, new ConfigDescription("Server side float", new AcceptableValueRange<float>(0f, 1000f), new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            Config.Bind("Server config", "IntegerValue1", 200, new ConfigDescription("Server side integer", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            Config.Bind("Server config", "BoolValue1", false, new ConfigDescription("Server side bool", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("Server config", "StringValue1", "StringValue", 
+                new ConfigDescription("Server side string", null, 
+                new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("Server config", "FloatValue1", 750f, 
+                new ConfigDescription("Server side float", 
+                new AcceptableValueRange<float>(0f, 1000f), 
+                new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("Server config", "IntegerValue1", 200, 
+                new ConfigDescription("Server side integer", null, 
+                new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("Server config", "BoolValue1", false, 
+                new ConfigDescription("Server side bool", null, 
+                new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             // Colored text configs
             Config.Bind("Client config", "ColoredValue", false,
-                new ConfigDescription("Colored key and description text", null, new ConfigurationManagerAttributes { EntryColor = Color.blue, DescriptionColor = Color.yellow }));
+                new ConfigDescription("Colored key and description text", null, 
+                new ConfigurationManagerAttributes { EntryColor = Color.blue, DescriptionColor = Color.yellow }));
 
             // Invisible configs
             Config.Bind("Client config", "InvisibleInt", 150,
-                new ConfigDescription("Invisible int, testing browsable=false", null, new ConfigurationManagerAttributes() { Browsable = false }));
+                new ConfigDescription("Invisible int, testing browsable=false", null, 
+                new ConfigurationManagerAttributes() { Browsable = false }));
 
             // Add a client side custom input key for the EvilSword
-            EvilSwordSpecialConfig = Config.Bind("Client config", "EvilSword Special Attack", KeyCode.B, new ConfigDescription("Key to unleash evil with the Evil Sword"));
+            EvilSwordSpecialConfig = Config.Bind("Client config", "EvilSword Special Attack", KeyCode.B, 
+                new ConfigDescription("Key to unleash evil with the Evil Sword"));
 
             // You can subscribe to a global event when config got synced initially and on changes
             SynchronizationManager.OnConfigurationSynchronized += (obj, attr) =>
@@ -258,6 +403,22 @@ namespace JotunnModExample
                 Key = KeyCode.Home
             };
             InputManager.Instance.AddButton(PluginGUID, RaiseSkillButton);
+
+            CreateColorPickerButton = new ButtonConfig
+            {
+                Name = "JotunnModExample_ColorPicker",
+                Key = KeyCode.PageUp,
+                ActiveInGUI = true
+            };
+            InputManager.Instance.AddButton(PluginGUID, CreateColorPickerButton);
+
+            CreateGradientPickerButton = new ButtonConfig
+            {
+                Name = "JotunnModExample_GradientPicker",
+                Key = KeyCode.PageDown,
+                ActiveInGUI = true
+            };
+            InputManager.Instance.AddButton(PluginGUID, CreateGradientPickerButton);
 
             // Add key bindings backed by a config value
             // The HintToken is used for the custom KeyHint of the EvilSword
