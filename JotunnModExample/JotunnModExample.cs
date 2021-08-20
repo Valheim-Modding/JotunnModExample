@@ -108,7 +108,7 @@ namespace JotunnModExample
                 // Raise the test skill
                 if (Player.m_localPlayer != null && ZInput.GetButtonDown(RaiseSkillButton.Name))
                 {
-                    Player.m_localPlayer.RaiseSkill(TestSkill, 1f);
+                    Player.m_localPlayer.RaiseSkill(TestSkill);
                 }
 
                 // Use the name of the ButtonConfig to identify the button pressed
@@ -239,14 +239,14 @@ namespace JotunnModExample
             {
                 // Get the hovered piece and add our ColorChanger component to it
                 var hovered = Player.m_localPlayer.GetHoverObject();
-                var current = hovered.GetComponentInChildren<Renderer>();
+                var current = hovered?.GetComponentInChildren<Renderer>();
                 if (current != null)
                 {
                     current.gameObject.AddComponent<ColorChanger>();
                 }
                 else
                 {
-                    var parent = hovered.transform.parent.gameObject.GetComponentInChildren<Renderer>();
+                    var parent = hovered?.transform.parent.gameObject.GetComponentInChildren<Renderer>();
                     if (parent != null)
                     {
                         parent.gameObject.AddComponent<ColorChanger>();
@@ -276,14 +276,14 @@ namespace JotunnModExample
             {
                 // Get the hovered piece and add our GradientChanger component to it
                 var hovered = Player.m_localPlayer.GetHoverObject();
-                var current = hovered.GetComponentInChildren<Renderer>();
+                var current = hovered?.GetComponentInChildren<Renderer>();
                 if (current != null)
                 {
                     current.gameObject.AddComponent<GradientChanger>();
                 }
                 else
                 {
-                    var parent = hovered.transform.parent.gameObject.GetComponentInChildren<Renderer>();
+                    var parent = hovered?.transform.parent.gameObject.GetComponentInChildren<Renderer>();
                     if (parent != null)
                     {
                         parent.gameObject.AddComponent<GradientChanger>();
@@ -390,30 +390,30 @@ namespace JotunnModExample
             {
                 Name = "JotunnModExample_Menu",
                 Key = KeyCode.Insert,
-                ActiveInGUI = true    // Enable this button also when in GUI (e.g. the console)
+                ActiveInCustomGUI = true  // Enable this button in custom GUI
             };
             InputManager.Instance.AddButton(PluginGUID, ShowGUIButton);
 
             RaiseSkillButton = new ButtonConfig
             {
                 Name = "JotunnExampleMod_RaiseSkill",
-                Key = KeyCode.Home
+                Key = KeyCode.RightControl,
+                ActiveInGUI = true,    // Enable this button in vanilla GUI (e.g. the console)
+                ActiveInCustomGUI = true  // Enable this button in custom GUI
             };
             InputManager.Instance.AddButton(PluginGUID, RaiseSkillButton);
 
             CreateColorPickerButton = new ButtonConfig
             {
                 Name = "JotunnModExample_ColorPicker",
-                Key = KeyCode.PageUp,
-                ActiveInGUI = true
+                Key = KeyCode.PageUp
             };
             InputManager.Instance.AddButton(PluginGUID, CreateColorPickerButton);
 
             CreateGradientPickerButton = new ButtonConfig
             {
                 Name = "JotunnModExample_GradientPicker",
-                Key = KeyCode.PageDown,
-                ActiveInGUI = true
+                Key = KeyCode.PageDown
             };
             InputManager.Instance.AddButton(PluginGUID, CreateGradientPickerButton);
 
