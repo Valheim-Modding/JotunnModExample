@@ -31,7 +31,7 @@ namespace JotunnModExample
     {
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "2.2.1";
+        public const string PluginVersion = "2.3.0";
 
         // Asset and prefab loading
         private AssetBundle TestAssets;
@@ -137,7 +137,7 @@ namespace JotunnModExample
         private void TogglePanel()
         {
             // Create the panel if it does not exist
-            if (TestPanel == null)
+            if (!TestPanel)
             {
                 if (GUIManager.Instance == null)
                 {
@@ -145,15 +145,15 @@ namespace JotunnModExample
                     return;
                 }
 
-                if (GUIManager.PixelFix == null)
+                if (!GUIManager.CustomGUIFront)
                 {
-                    Logger.LogError("GUIManager pixelfix is null");
+                    Logger.LogError("GUIManager CustomGUI is null");
                     return;
                 }
 
                 // Create the panel object
                 TestPanel = GUIManager.Instance.CreateWoodpanel(
-                    parent: GUIManager.PixelFix.transform,
+                    parent: GUIManager.CustomGUIFront.transform,
                     anchorMin: new Vector2(0.5f, 0.5f),
                     anchorMax: new Vector2(0.5f, 0.5f),
                     position: new Vector2(0, 0),
@@ -206,10 +206,7 @@ namespace JotunnModExample
 
                 // Add a listener to the button to close the panel again
                 Button button = buttonObject.GetComponent<Button>();
-                button.onClick.AddListener(() =>
-                {
-                    TogglePanel();
-                });
+                button.onClick.AddListener(TogglePanel);
             }
 
             // Switch the current state
@@ -231,9 +228,9 @@ namespace JotunnModExample
                 return;
             }
 
-            if (GUIManager.PixelFix == null)
+            if (!GUIManager.CustomGUIFront)
             {
-                Logger.LogError("GUIManager pixelfix is null");
+                Logger.LogError("GUIManager CustomGUI is null");
                 return;
             }
 
@@ -268,9 +265,9 @@ namespace JotunnModExample
                 return;
             }
 
-            if (GUIManager.PixelFix == null)
+            if (!GUIManager.CustomGUIFront)
             {
-                Logger.LogError("GUIManager pixelfix is null");
+                Logger.LogError("GUIManager CustomGUI is null");
                 return;
             }
 
@@ -800,7 +797,7 @@ namespace JotunnModExample
         private void AddKitbashedPieces()
         {
             // A simple kitbash piece, we will begin with the "empty" prefab as the base
-            var simpleKitbashPiece = new CustomPiece("piece_simple_kitbash", true, "Hammer");
+            CustomPiece simpleKitbashPiece = new CustomPiece("piece_simple_kitbash", true, "Hammer");
             simpleKitbashPiece.FixReference = true;
             simpleKitbashPiece.Piece.m_icon = TestSprite;
             PieceManager.Instance.AddPiece(simpleKitbashPiece);
