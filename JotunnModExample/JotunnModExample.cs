@@ -31,7 +31,7 @@ namespace JotunnModExample
     {
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "2.3.0";
+        public const string PluginVersion = "2.2.4";
 
         // Asset and prefab loading
         private AssetBundle TestAssets;
