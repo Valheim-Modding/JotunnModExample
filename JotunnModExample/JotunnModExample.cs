@@ -902,6 +902,9 @@ namespace JotunnModExample
                 var itemDrop = CI.ItemDrop;
                 itemDrop.m_itemData.m_shared.m_name = "$item_evilsword";
                 itemDrop.m_itemData.m_shared.m_description = "$item_evilsword_desc";
+                
+                // Add our custom status effect to it
+                itemDrop.m_itemData.m_shared.m_equipStatusEffect = EvilSwordEffect.StatusEffect;
 
                 // Create the recipe for the sword
                 RecipeEvilSword(itemDrop);
