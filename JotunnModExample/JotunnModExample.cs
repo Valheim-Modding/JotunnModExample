@@ -180,21 +180,47 @@ namespace JotunnModExample
                     width: 350f,
                     height: 40f,
                     addContentSizeFitter: false);
-
+                
                 // Create the button object
                 GameObject buttonObject = GUIManager.Instance.CreateButton(
                     text: "A Test Button - long dong schlongsen text",
                     parent: TestPanel.transform,
                     anchorMin: new Vector2(0.5f, 0.5f),
                     anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(0, 0),
-                    width: 250,
-                    height: 100);
+                    position: new Vector2(0, -250f),
+                    width: 250f,
+                    height: 60f);
                 buttonObject.SetActive(true);
 
                 // Add a listener to the button to close the panel again
                 Button button = buttonObject.GetComponent<Button>();
                 button.onClick.AddListener(TogglePanel);
+
+                // Create a dropdown
+                var dropdownObject = GUIManager.Instance.CreateDropDown(
+                    parent: TestPanel.transform,
+                    anchorMin: new Vector2(0.5f, 0.5f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    position: new Vector2(-250f, -250f),
+                    fontSize: 16,
+                    width: 100f,
+                    height: 30f);
+                dropdownObject.GetComponent<Dropdown>().AddOptions(new List<string>
+                {
+                    "bla", "blubb", "börks", "blarp", "harhar"
+                });
+
+                // Create an input field
+                GUIManager.Instance.CreateInputField(
+                    parent: TestPanel.transform,
+                    anchorMin: new Vector2(0.5f, 0.5f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    position: new Vector2(250f, -250f),
+                    contentType: InputField.ContentType.Standard,
+                    placeholderText: "input...",
+                    fontSize: 16,
+                    width: 160f,
+                    height: 30f);
             }
 
             // Switch the current state
