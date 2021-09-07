@@ -745,7 +745,7 @@ namespace JotunnModExample
                 Category = "Lulzies"  // Adds a custom category for the Hammer
             });
 
-            if (CP != null)
+            if (CP.PiecePrefab)
             {
                 // Add our test texture to the Unity MeshRenderer
                 var prefab = CP.PiecePrefab;
@@ -765,7 +765,7 @@ namespace JotunnModExample
                 Category = "Lulzies"  // Adds a custom category for the Hammer
             });
 
-            if (CP != null)
+            if (CP.PiecePrefab)
             {
                 // Add our test texture to the Unity MeshRenderer and make the material color grey
                 var prefab = CP.PiecePrefab;

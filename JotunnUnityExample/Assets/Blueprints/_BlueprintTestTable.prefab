@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4570039018852470}
   - component: {fileID: 114368156015212241}
   m_Layer: 0
-  m_Name: _BlueprintPieceTable
+  m_Name: _BlueprintTestTable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
