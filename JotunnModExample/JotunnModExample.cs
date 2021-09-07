@@ -84,10 +84,10 @@ namespace JotunnModExample
             AddKitbashedPieces();
 
             // Add custom items cloned from vanilla items
-            ItemManager.OnVanillaItemsAvailable += AddClonedItems;
+            PrefabManager.OnVanillaPrefabsAvailable += AddClonedItems;
 
             // Add a cloned item with custom variants
-            ItemManager.OnVanillaItemsAvailable += AddVariants;
+            PrefabManager.OnVanillaPrefabsAvailable += AddVariants;
         }
 
         // Called every frame
@@ -945,7 +945,7 @@ namespace JotunnModExample
             finally
             {
                 // You want that to run only once, Jotunn has the item cached for the game session
-                ItemManager.OnVanillaItemsAvailable -= AddClonedItems;
+                PrefabManager.OnVanillaPrefabsAvailable -= AddClonedItems;
             }
         }
 
@@ -1027,7 +1027,7 @@ namespace JotunnModExample
             finally
             {
                 // You want that to run only once, Jotunn has the item cached for the game session
-                ItemManager.OnVanillaItemsAvailable -= AddVariants;
+                PrefabManager.OnVanillaPrefabsAvailable -= AddVariants;
             }
         }
     }
