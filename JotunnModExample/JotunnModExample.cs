@@ -84,10 +84,10 @@ namespace JotunnModExample
             AddKitbashedPieces();
 
             // Add custom items cloned from vanilla items
-            ItemManager.OnVanillaItemsAvailable += AddClonedItems;
+            PrefabManager.OnVanillaPrefabsAvailable += AddClonedItems;
 
             // Add a cloned item with custom variants
-            ItemManager.OnVanillaItemsAvailable += AddVariants;
+            PrefabManager.OnVanillaPrefabsAvailable += AddVariants;
         }
 
         // Called every frame
@@ -745,7 +745,7 @@ namespace JotunnModExample
                 Category = "Lulzies"  // Adds a custom category for the Hammer
             });
 
-            if (CP != null)
+            if (CP.PiecePrefab)
             {
                 // Add our test texture to the Unity MeshRenderer
                 var prefab = CP.PiecePrefab;
@@ -765,7 +765,7 @@ namespace JotunnModExample
                 Category = "Lulzies"  // Adds a custom category for the Hammer
             });
 
-            if (CP != null)
+            if (CP.PiecePrefab)
             {
                 // Add our test texture to the Unity MeshRenderer and make the material color grey
                 var prefab = CP.PiecePrefab;
@@ -945,7 +945,7 @@ namespace JotunnModExample
             finally
             {
                 // You want that to run only once, Jotunn has the item cached for the game session
-                ItemManager.OnVanillaItemsAvailable -= AddClonedItems;
+                PrefabManager.OnVanillaPrefabsAvailable -= AddClonedItems;
             }
         }
 
@@ -1027,7 +1027,7 @@ namespace JotunnModExample
             finally
             {
                 // You want that to run only once, Jotunn has the item cached for the game session
-                ItemManager.OnVanillaItemsAvailable -= AddVariants;
+                PrefabManager.OnVanillaPrefabsAvailable -= AddVariants;
             }
         }
     }
