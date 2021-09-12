@@ -30,7 +30,7 @@ namespace JotunnModExample
     {
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "2.2.5";
+        public const string PluginVersion = "2.3.0";
 
         // Asset and prefab loading
         private AssetBundle TestAssets;
@@ -805,6 +805,12 @@ namespace JotunnModExample
                 BoneReorder.ApplyOnEquipmentChanged();
             }
             EmbeddedResourceBundle.Unload(false);
+            
+            // Load completely mocked "Shit Sword" (Cheat Sword copy)
+            var cheatybundle = AssetUtils.LoadAssetBundleFromResources("cheatsword", typeof(JotunnModExample).Assembly);
+            var cheaty = cheatybundle.LoadAsset<GameObject>("Cheaty");
+            ItemManager.Instance.AddItem(new CustomItem(cheaty, fixReference: true));
+            cheatybundle.Unload(false);
         }
 
         // Adds Kitbashed pieces
