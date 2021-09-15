@@ -28,9 +28,13 @@ namespace JotunnModExample
     [BepInDependency("cinnabun.backpacks-v1.0.0", BepInDependency.DependencyFlags.SoftDependency)]
     internal class JotunnModExample : BaseUnityPlugin
     {
+        // BepInEx' plugin metadata
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
         public const string PluginVersion = "2.3.0";
+
+        // Your mod's custom localization
+        private CustomLocalization Localization;
 
         // Asset and prefab loading
         private AssetBundle TestAssets;
@@ -442,44 +446,40 @@ namespace JotunnModExample
             InputManager.Instance.AddButton(PluginGUID, EvilSwordSpecialButton);
         }
 
-        // Adds localizations with configs
+        // Adds hardcoded localizations
         private void AddLocalizations()
         {
+            // Create a custom Localization instance and add it to the Manager
+            Localization = new CustomLocalization();
+            LocalizationManager.Instance.AddLocalization(Localization);
+
             // Add translations for our custom skill
-            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            Localization.AddTranslation("English", new Dictionary<string, string>
             {
-                Translations = {
-                    {"skill_TestingSkill", "TestLocalizedSkillName" }
-                }
+                {"skill_TestingSkill", "TestLocalizedSkillName" }
             });
 
             // Add translations for the custom item in AddClonedItems
-            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            Localization.AddTranslation("English", new Dictionary<string, string>
             {
-                Translations = {
-                    {"item_evilsword", "Sword of Darkness"}, {"item_evilsword_desc", "Bringing the light"},
-                    {"evilsword_shwing", "Woooosh"}, {"evilsword_scroll", "*scroll*"},
-                    {"evilsword_beevil", "Be evil"}, {"evilsword_beevilmessage", ":reee:"},
-                    {"evilsword_effectname", "Evil"}, {"evilsword_effectstart", "You feel evil"},
-                    {"evilsword_effectstop", "You feel nice again"}
-                }
+                {"item_evilsword", "Sword of Darkness"}, {"item_evilsword_desc", "Bringing the light"},
+                {"evilsword_shwing", "Woooosh"}, {"evilsword_scroll", "*scroll*"},
+                {"evilsword_beevil", "Be evil"}, {"evilsword_beevilmessage", ":reee:"},
+                {"evilsword_effectname", "Evil"}, {"evilsword_effectstart", "You feel evil"},
+                {"evilsword_effectstop", "You feel nice again"}
             });
 
             // Add translations for the custom piece in AddPieceCategories
-            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            Localization.AddTranslation("English", new Dictionary<string, string>
             {
-                Translations = {
-                    { "piece_lul", "Lulz" }, { "piece_lul_description", "Do it for them" },
-                    { "piece_lel", "Lölz" }, { "piece_lel_description", "Härhärhär" }
-                }
+                { "piece_lul", "Lulz" }, { "piece_lul_description", "Do it for them" },
+                { "piece_lel", "Lölz" }, { "piece_lel_description", "Härhärhär" }
             });
 
             // Add translations for the custom item in AddVariants
-            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            Localization.AddTranslation("English", new Dictionary<string, string>
             {
-                Translations = {
-                    { "lulz_shield", "Lulz Shield" }, { "lulz_shield_desc", "Lough at your enemies" }
-                }
+                { "lulz_shield", "Lulz Shield" }, { "lulz_shield_desc", "Lough at your enemies" }
             });
         }
 
@@ -682,7 +682,7 @@ namespace JotunnModExample
             foreach (var textAsset in textAssets)
             {
                 var lang = textAsset.name.Replace(".json", null);
-                LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
+                Localization.AddJsonFile(lang, textAsset.ToString());
             }
         }
 
@@ -722,11 +722,9 @@ namespace JotunnModExample
             GUIManager.Instance.AddKeyHint(KHC_piece);
 
             // Add additional localization manually
-            LocalizationManager.Instance.AddLocalization(new LocalizationConfig("English")
+            Localization.AddTranslation("English", new Dictionary<string, string>
             {
-                Translations = {
-                    {"bprune_make", "Capture Blueprint"}, {"bprune_piece", "Place Blueprint"}
-                }
+                {"bprune_make", "Capture Blueprint"}, {"bprune_piece", "Place Blueprint"}
             });
         }
 
