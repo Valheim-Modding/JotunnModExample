@@ -476,10 +476,11 @@ namespace JotunnModExample
                 { "piece_lel", "Lölz" }, { "piece_lel_description", "Härhärhär" }
             });
 
-            // Add translations for the custom item in AddVariants
+            // Add translations for the custom items in AddVariants
             Localization.AddTranslation("English", new Dictionary<string, string>
             {
-                { "lulz_shield", "Lulz Shield" }, { "lulz_shield_desc", "Lough at your enemies" }
+                { "lulz_shield", "Lulz Shield" }, { "lulz_shield_desc", "Lough at your enemies" },
+                { "lulz_sword", "Lulz Sword" }, { "lulz_sword_desc", "Lulz on a stick" }
             });
         }
 
@@ -1004,15 +1005,18 @@ namespace JotunnModExample
             GUIManager.Instance.AddKeyHint(KHC);
         }
 
-        // Clone the wooden shield and add own variations to it
+        // Clone the wooden shield and the bronze sword and add own variations to it
         private void AddVariants()
         {
             try
             {
                 Sprite var1 = AssetUtils.LoadSpriteFromFile("JotunnModExample/Assets/test_var1.png");
                 Sprite var2 = AssetUtils.LoadSpriteFromFile("JotunnModExample/Assets/test_var2.png");
+                Sprite var3 = AssetUtils.LoadSpriteFromFile("JotunnModExample/Assets/test_var3.png");
+                Sprite var4 = AssetUtils.LoadSpriteFromFile("JotunnModExample/Assets/test_var4.png");
                 Texture2D styleTex = AssetUtils.LoadTexture("JotunnModExample/Assets/test_varpaint.png");
-                CustomItem CI = new CustomItem("item_lulvariants", "ShieldWood", new ItemConfig
+
+                CustomItem shield = new CustomItem("item_lulzshield", "ShieldWood", new ItemConfig
                 {
                     Name = "$lulz_shield",
                     Description = "$lulz_shield_desc",
@@ -1022,11 +1026,27 @@ namespace JotunnModExample
                     },
                     Icons = new Sprite[]
                     {
-                        var1, var2
+                        var1, var2, var3, var4
                     },
                     StyleTex = styleTex
                 });
-                ItemManager.Instance.AddItem(CI);
+                ItemManager.Instance.AddItem(shield);
+                
+                CustomItem sword = new CustomItem("item_lulzsword", "SwordBronze", new ItemConfig
+                {
+                    Name = "$lulz_sword",
+                    Description = "$lulz_sword_desc",
+                    Requirements = new RequirementConfig[]
+                    {
+                        new RequirementConfig{ Item = "Stone", Amount = 1 }
+                    },
+                    Icons = new Sprite[]
+                    {
+                        var1, var2, var3, var4
+                    },
+                    StyleTex = styleTex
+                });
+                ItemManager.Instance.AddItem(sword);
             }
             catch (Exception ex)
             {
