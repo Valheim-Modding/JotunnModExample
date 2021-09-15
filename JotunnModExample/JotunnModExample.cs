@@ -643,7 +643,7 @@ namespace JotunnModExample
         {
             // Create and add a custom piece for the rune. Add the prefab name of the PieceTable to the config.
             var makebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("make_testblueprint");
-            var makebp = new CustomPiece(makebp_prefab,
+            var makebp = new CustomPiece(makebp_prefab, fixReference: false,
                 new PieceConfig
                 {
                     PieceTable = "_BlueprintTestTable"
@@ -653,7 +653,7 @@ namespace JotunnModExample
             // Load, create and add another custom piece for the rune. This piece uses more properties
             // of the PieceConfig - it can now be build in dungeons and has actual requirements to build it.
             var placebp_prefab = BlueprintRuneBundle.LoadAsset<GameObject>("piece_testblueprint");
-            var placebp = new CustomPiece(placebp_prefab,
+            var placebp = new CustomPiece(placebp_prefab, fixReference: false,
                 new PieceConfig
                 {
                     PieceTable = "_BlueprintTestTable",
@@ -892,20 +892,24 @@ namespace JotunnModExample
                         },
                     }
                 });
+
                 kitbashObject.OnKitbashApplied += () =>
                 {
                     // We've added a CapsuleCollider to the skeleton, this is no longer needed
                     Destroy(kitbashObject.Prefab.transform.Find("new/pivot/default").GetComponent<MeshCollider>());
                 };
-                PieceManager.Instance.AddPiece(new CustomPiece(kitbashObject.Prefab, new PieceConfig
-                {
-                    PieceTable = "Hammer",
-                    Requirements = new RequirementConfig[]
+
+                PieceManager.Instance.AddPiece(
+                    new CustomPiece(kitbashObject.Prefab, fixReference: false, 
+                    new PieceConfig
                     {
-                        new RequirementConfig { Item = "Obsidian" , Recover = true},
-                        new RequirementConfig { Item = "Bronze", Recover = true }
-                    }
-                }));
+                        PieceTable = "Hammer",
+                        Requirements = new RequirementConfig[]
+                        {
+                            new RequirementConfig { Item = "Obsidian" , Recover = true},
+                            new RequirementConfig { Item = "Bronze", Recover = true }
+                        }
+                    }));
             }
             finally
             {
