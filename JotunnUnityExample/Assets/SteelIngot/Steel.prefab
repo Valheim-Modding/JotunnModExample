@@ -63,7 +63,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1060533529941259}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1521249158, guid: 02f806226319f1d4b8ae0232b57e8b19, type: 3}
+  m_Script: {fileID: 11500000, guid: bbf22469d96cf2e41976ac7d7e773311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_persistent: 1
@@ -79,7 +79,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1060533529941259}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1109157524, guid: 02f806226319f1d4b8ae0232b57e8b19, type: 3}
+  m_Script: {fileID: 11500000, guid: 4febfc503362bff42bfbaa61945d4f33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_syncPosition: 1
@@ -96,7 +96,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1060533529941259}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 825357479, guid: 02f806226319f1d4b8ae0232b57e8b19, type: 3}
+  m_Script: {fileID: 11500000, guid: 67d6c2ba3fde552469c51b6175fccbb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_autoPickup: 1
