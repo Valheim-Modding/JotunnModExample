@@ -328,32 +328,36 @@ namespace JotunnModExample
             // In local/single player games the player is always considered the admin
             Config.Bind("Server config", "StringValue1", "StringValue",
                 new ConfigDescription("Server side string", null,
-                new ConfigurationManagerAttributes { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("Server config", "FloatValue1", 750f,
                 new ConfigDescription("Server side float",
-                new AcceptableValueRange<float>(0f, 1000f),
-                new ConfigurationManagerAttributes { IsAdminOnly = true }));
+                    new AcceptableValueRange<float>(0f, 1000f),
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("Server config", "IntegerValue1", 200,
                 new ConfigDescription("Server side integer", null,
-                new ConfigurationManagerAttributes { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("Server config", "BoolValue1", false,
                 new ConfigDescription("Server side bool", null,
-                new ConfigurationManagerAttributes { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            Config.Bind("ServerConfig", "KeyboardShortcutValue",
+                new KeyboardShortcut(KeyCode.A, KeyCode.LeftControl), 
+                    new ConfigDescription("Server side KeyboardShortcut", null, 
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             // Colored text configs
             Config.Bind("Client config", "ColoredValue", false,
                 new ConfigDescription("Colored key and description text", null,
-                new ConfigurationManagerAttributes { EntryColor = Color.blue, DescriptionColor = Color.yellow }));
+                    new ConfigurationManagerAttributes { EntryColor = Color.blue, DescriptionColor = Color.yellow }));
 
             // Invisible configs
             Config.Bind("Client config", "InvisibleInt", 150,
                 new ConfigDescription("Invisible int, testing browsable=false", null,
-                new ConfigurationManagerAttributes() { Browsable = false }));
+                    new ConfigurationManagerAttributes() { Browsable = false }));
 
             // Add a client side custom input key for the EvilSword
             EvilSwordSpecialConfig = Config.Bind("Client config", "EvilSword Special Attack", KeyCode.B,
                 new ConfigDescription("Key to unleash evil with the Evil Sword"));
-
+            
             // You can subscribe to a global event when config got synced initially and on changes
             SynchronizationManager.OnConfigurationSynchronized += (obj, attr) =>
             {
