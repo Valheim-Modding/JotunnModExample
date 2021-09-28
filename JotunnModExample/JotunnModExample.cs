@@ -167,7 +167,7 @@ namespace JotunnModExample
 
                 // Add the Jötunn draggable Component to the panel
                 // Note: This is normally automatically added when using CreateWoodpanel()
-                DragWindowCntrl.ApplyDragWindowCntrl(TestPanel);
+                TestPanel.AddComponent<DragWindowCntrl>();
 
                 // Create the text object
                 GameObject textObject = GUIManager.Instance.CreateText(
@@ -594,6 +594,23 @@ namespace JotunnModExample
                 ToItem = "Steel" // This is our custom prefabs name we have loaded just above 
             });
             ItemManager.Instance.AddItemConversion(blastConversion);
+
+            // Add an incinerator conversion. This one is special since the incinerator conversion script 
+            // takes one or more items to produce any amount of a new item
+            var inciConversion = new CustomItemConversion(new IncineratorConversionConfig
+            {
+                //Station = "incinerator"  // Use the default from the config
+                Requirements = new List<IncineratorRequirementConfig>
+                {
+                    new IncineratorRequirementConfig {Item = "Wood", Amount = 1},
+                    new IncineratorRequirementConfig {Item = "Stone", Amount = 1}
+                },
+                ToItem = "Coins",
+                ProducedItems = 20,
+                RequireOnlyOneIngredient = false,  // true = only one of the requirements is needed to produce the output
+                Priority = 5                       // Higher priorities get preferred when multiple requirements are met
+            });
+            ItemManager.Instance.AddItemConversion(inciConversion);
         }
 
         // Add new assets via item Configs
