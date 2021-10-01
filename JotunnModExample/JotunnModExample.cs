@@ -58,6 +58,10 @@ namespace JotunnModExample
         private ConfigEntry<KeyCode> EvilSwordSpecialConfig;
         private ButtonConfig EvilSwordSpecialButton;
 
+        // Variable BepInEx Shortcut backed by a config
+        private ConfigEntry<KeyboardShortcut> ShortcutConfig;
+        private ButtonConfig ShortcutButton;
+
         // Configuration values
         private ConfigEntry<string> StringConfig;
         private ConfigEntry<float> FloatConfig;
@@ -121,6 +125,15 @@ namespace JotunnModExample
                     if (ZInput.GetButtonDown(EvilSwordSpecialButton.Name) && MessageHud.instance.m_msgQeue.Count == 0)
                     {
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$evilsword_beevilmessage");
+                    }
+                }
+
+                // KeyboardShortcuts are also injected into the ZInput system
+                if (ShortcutButton != null && MessageHud.instance != null)
+                {
+                    if (ZInput.GetButtonDown(ShortcutButton.Name) && MessageHud.instance.m_msgQeue.Count == 0)
+                    {
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$lulzcut_message");
                     }
                 }
 
@@ -358,6 +371,11 @@ namespace JotunnModExample
             EvilSwordSpecialConfig = Config.Bind("Client config", "EvilSword Special Attack", KeyCode.B,
                 new ConfigDescription("Key to unleash evil with the Evil Sword"));
             
+            // BepInEx' KeyboardShortcut class is supported, too
+            ShortcutConfig = Config.Bind("Client config", "Keycodes with modifiers",
+                new KeyboardShortcut(KeyCode.L, KeyCode.LeftControl, KeyCode.LeftAlt),
+                new ConfigDescription("Secret key combination"));
+
             // You can subscribe to a global event when config got synced initially and on changes
             SynchronizationManager.OnConfigurationSynchronized += (obj, attr) =>
             {
@@ -448,6 +466,15 @@ namespace JotunnModExample
                 HintToken = "$evilsword_beevil"
             };
             InputManager.Instance.AddButton(PluginGUID, EvilSwordSpecialButton);
+
+            // Supply your KeyboardShortcut configs to ShortcutConfig instead.
+            ShortcutButton = new ButtonConfig
+            {
+                Name = "SecretShortcut",
+                ShortcutConfig = ShortcutConfig,
+                HintToken = "$lulzcut"
+            };
+            InputManager.Instance.AddButton(PluginGUID, ShortcutButton);
         }
 
         // Adds hardcoded localizations
@@ -485,6 +512,12 @@ namespace JotunnModExample
             {
                 { "lulz_shield", "Lulz Shield" }, { "lulz_shield_desc", "Lough at your enemies" },
                 { "lulz_sword", "Lulz Sword" }, { "lulz_sword_desc", "Lulz on a stick" }
+            });
+
+            // Add translations for the KeyboardShortcut
+            Localization.AddTranslation("English", new Dictionary<string, string>
+            {
+                {"lulzcut", "lol at 'em"}, {"lulzcut_message", "Trololol"}
             });
         }
 
