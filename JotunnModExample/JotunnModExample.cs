@@ -97,6 +97,9 @@ namespace JotunnModExample
 
             // Add a cloned item with custom variants
             PrefabManager.OnVanillaPrefabsAvailable += AddVariants;
+
+            // Add a cloned item with a runtime-rendered icon
+            PrefabManager.OnVanillaPrefabsAvailable += AddItemsWithRenderedIcons;
         }
 
         // Called every frame
@@ -528,6 +531,12 @@ namespace JotunnModExample
             Localization.AddTranslation("English", new Dictionary<string, string>
             {
                 {"lulzcut", "lol at 'em"}, {"lulzcut_message", "Trololol"}
+            });
+
+            // Add translations for the rendered tree
+            Localization.AddTranslation("English", new Dictionary<string, string>
+            {
+                {"rendered_tree", "Rendered Tree"}, {"rendered_tree_desc", "A powerful tree, that can render its own icon. Magic!"}
             });
         }
 
@@ -1120,6 +1129,48 @@ namespace JotunnModExample
             {
                 // You want that to run only once, Jotunn has the item cached for the game session
                 PrefabManager.OnVanillaPrefabsAvailable -= AddVariants;
+            }
+        }
+
+        // Create rendered icons from prefabs
+        private void AddItemsWithRenderedIcons()
+        {
+            try
+            {
+                // Create the tree-item from a vanilla prefab without providing an icon
+                CustomItem treeItem = new CustomItem("item_MyTree", "BeechSeeds", new ItemConfig
+                {
+                    Name = "$rendered_tree",
+                    Description = "$rendered_tree_desc",
+                    Requirements = new[]
+                    {
+                        new RequirementConfig()
+                        {
+                            Item = "Wood",
+                            Amount = 1,
+                            Recover = true
+                        }
+                    }
+                });
+                ItemManager.Instance.AddItem(treeItem);
+
+                // Get the beech tree prefab to render our icon from
+                GameObject beech = PrefabManager.Instance.GetPrefab("Beech1");
+        
+                // RenderManager provides a delegate, called after rendering finished
+                RenderManager.Instance.EnqeueRender(beech, sprite =>
+                {
+                    treeItem.ItemDrop.m_itemData.m_shared.m_icons = new[] { sprite };
+                });
+            }
+            catch (Exception ex)
+            {
+                Jotunn.Logger.LogError($"Error while adding item with rendering: {ex}");
+            }
+            finally
+            {
+                // You want that to run only once, Jotunn has the item cached for the game session
+                PrefabManager.OnVanillaPrefabsAvailable -= AddItemsWithRenderedIcons;
             }
         }
     }
