@@ -54,7 +54,7 @@ namespace JotunnModExample
         private ButtonConfig CreateColorPickerButton;
         private ButtonConfig CreateGradientPickerButton;
 
-        // Variable button backed by a config
+        // Variable button backed by a KeyCode and a GamepadButton config
         private ConfigEntry<KeyCode> EvilSwordSpecialConfig;
         private ConfigEntry<InputManager.GamepadButton> EvilSwordGamepadConfig;
         private ButtonConfig EvilSwordSpecialButton;
@@ -759,7 +759,7 @@ namespace JotunnModExample
             {
                 Item = "BlueprintTestRune"
             };
-            GUIManager.Instance.AddKeyHint(KHC_base);
+            KeyHintManager.Instance.AddKeyHint(KHC_base);
 
             // Add custom KeyHints for specific pieces
             KeyHintConfig KHC_make = new KeyHintConfig
@@ -772,7 +772,7 @@ namespace JotunnModExample
                     new ButtonConfig { Name = "Attack", HintToken = "$bprune_make" }
                 }
             };
-            GUIManager.Instance.AddKeyHint(KHC_make);
+            KeyHintManager.Instance.AddKeyHint(KHC_make);
 
             KeyHintConfig KHC_piece = new KeyHintConfig
             {
@@ -784,7 +784,7 @@ namespace JotunnModExample
                     new ButtonConfig { Name = "Attack", HintToken = "$bprune_piece" }
                 }
             };
-            GUIManager.Instance.AddKeyHint(KHC_piece);
+            KeyHintManager.Instance.AddKeyHint(KHC_piece);
 
             // Add additional localization manually
             Localization.AddTranslation("English", new Dictionary<string, string>
@@ -1066,7 +1066,7 @@ namespace JotunnModExample
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$evilsword_scroll" }
                 }
             };
-            GUIManager.Instance.AddKeyHint(KHC);
+            KeyHintManager.Instance.AddKeyHint(KHC);
         }
 
         // Clone the wooden shield and the bronze sword and add own variations to it
