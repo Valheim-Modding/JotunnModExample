@@ -1137,31 +1137,26 @@ namespace JotunnModExample
         {
             try
             {
-                // Create the tree-item from a vanilla prefab without providing an icon
-                CustomItem treeItem = new CustomItem("item_MyTree", "BeechSeeds", new ItemConfig
+                // local function that will get called when the rendering is done
+                void CreateTreeItem(Sprite sprite)
                 {
-                    Name = "$rendered_tree",
-                    Description = "$rendered_tree_desc",
-                    Requirements = new[]
-                    {
-                        new RequirementConfig()
+                    CustomItem treeItem = new CustomItem("item_MyTree", "BeechSeeds",
+                        new ItemConfig
                         {
-                            Item = "Wood",
-                            Amount = 1,
-                            Recover = true
-                        }
-                    }
-                });
-                ItemManager.Instance.AddItem(treeItem);
+                            Name = "$rendered_tree",
+                            Description = "$rendered_tree_desc",
+                            Icons = new[] { sprite },
+                            Requirements = new[]
+                            {
+                                new RequirementConfig { Item = "Wood", Amount = 1, Recover = true }
+                            }
+                        });
+                    ItemManager.Instance.AddItem(treeItem);
+                }
 
-                // Get the beech tree prefab to render our icon from
+                // use the vanilla beech tree prefab to render our icon from
                 GameObject beech = PrefabManager.Instance.GetPrefab("Beech1");
-        
-                // RenderManager provides a delegate, called after rendering finished
-                RenderManager.Instance.EnqeueRender(beech, sprite =>
-                {
-                    treeItem.ItemDrop.m_itemData.m_shared.m_icons = new[] { sprite };
-                });
+                RenderManager.Instance.EnqueueRender(beech, CreateTreeItem);
             }
             catch (Exception ex)
             {
