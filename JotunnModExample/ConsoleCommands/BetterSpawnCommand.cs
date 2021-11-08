@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using Jotunn.Entities;
+﻿using Jotunn.Entities;
 using Jotunn.Managers;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace JotunnModExample.ConsoleCommands
 {
@@ -12,15 +13,28 @@ namespace JotunnModExample.ConsoleCommands
 
         public override void Run(string[] args)
         {
-            GameObject prefab = PrefabManager.Instance.GetPrefab(args[0]);
+            if (args.Length == 0)
+            {
+                return;
+            }
 
+            GameObject prefab = PrefabManager.Instance.GetPrefab(args[0]);
             if (!prefab)
             {
                 Console.instance.Print("that doesn't exist: " + args[0]);
                 return;
             }
 
-            UnityEngine.Object.Instantiate<GameObject>(prefab, Player.m_localPlayer.transform.position + Player.m_localPlayer.transform.forward * 2f + Vector3.up, Quaternion.identity).GetComponent<Character>();
+            int cnt = args.Length < 2 ? 1 : int.Parse(args[1]);
+            for (int i = 0; i < cnt; i++)
+            {
+                UnityEngine.Object.Instantiate<GameObject>(prefab, Player.m_localPlayer.transform.position + Player.m_localPlayer.transform.forward * 2f + Vector3.up, Quaternion.identity);
+            }
+        }
+
+        public override List<string> CommandOptionList()
+        {
+            return ZNetScene.instance?.GetPrefabNames();
         }
     }
 }
