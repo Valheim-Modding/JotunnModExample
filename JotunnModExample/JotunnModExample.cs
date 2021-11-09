@@ -100,6 +100,10 @@ namespace JotunnModExample
 
             // Add a cloned item with a runtime-rendered icon
             PrefabManager.OnVanillaPrefabsAvailable += AddItemsWithRenderedIcons;
+            
+            ZoneManager.OnVanillaLocationsAvailable += ModifyVanillaLocationsAndVegetation;
+            ZoneManager.OnVanillaLocationsAvailable += AddCustomLocationsAndVegetation;
+
         }
 
         // Called every frame
@@ -1168,5 +1172,107 @@ namespace JotunnModExample
                 PrefabManager.OnVanillaPrefabsAvailable -= AddItemsWithRenderedIcons;
             }
         }
+
+
+        private void ModifyVanillaLocationsAndVegetation()
+        {
+            var lulzCubePrefab = PrefabManager.Instance.GetPrefab("piece_lul");
+
+            //modify existing locations
+            var eikhtyrLocation = ZoneManager.Instance.GetZoneLocation("Eikthyrnir");
+            eikhtyrLocation.m_exteriorRadius = 20f; //More space around the altar
+
+            var eikhtyrCube = Instantiate(lulzCubePrefab, eikhtyrLocation.m_prefab.transform);
+            eikhtyrCube.transform.localPosition = new Vector3(-8.52f, 5.37f, -0.92f);
+
+            //modify existing vegetation
+            var raspberryBush = ZoneManager.Instance.GetZoneVegetation("RaspberryBush");
+            raspberryBush.m_groupSizeMin = 10;
+            raspberryBush.m_groupSizeMax = 30;
+
+            //Not unregistering this hook, it needs to run every world load
+        }
+
+        private void AddCustomLocationsAndVegetation()
+        { 
+            AssetBundle locationsAssetBundle = AssetUtils.LoadAssetBundleFromResources("custom_locations", typeof(JotunnModExample).Assembly);
+            try
+            {
+                var lulzCubePrefab = PrefabManager.Instance.GetPrefab("piece_lul");
+
+                //Create location from AssetBundle
+                var cubeArchLocation = ZoneManager.Instance.CreateLocationContainer(locationsAssetBundle.LoadAsset<GameObject>("CubeArchLocation"), true);
+                ZoneManager.Instance.AddCustomLocation(new CustomLocation(cubeArchLocation, new LocationConfig
+                {
+                    Biome = Heightmap.Biome.BlackForest,
+                    Quantity = 200,
+                    Priotized = true,
+                    ExteriorRadius = 2f,
+                    MinAltitude = 1f,
+                    ClearArea = true,
+                }));
+
+                //Create a clone of a vanilla location
+                CustomLocation myEikthyrLocation = ZoneManager.Instance.CreateClonedLocation("MyEikthyrAltar", "Eikthyrnir");
+                myEikthyrLocation.ZoneLocation.m_exteriorRadius = 1f; // Easy to place :D
+                myEikthyrLocation.ZoneLocation.m_quantity = 20; //MOAR
+
+                // Stack of lulzcubes to easily spot the instances
+                for (int i = 0; i < 40; i++)
+                {
+                    var lulzCube = Instantiate(lulzCubePrefab, myEikthyrLocation.ZoneLocation.m_prefab.transform);
+                    lulzCube.transform.localPosition = new Vector3(0, i + 3, 0);
+                    lulzCube.transform.localRotation = Quaternion.Euler(0, i * 30, 0);
+                }
+
+                //Use locations for larger structures
+                GameObject cubesLocation = ZoneManager.Instance.CreateLocationContainer("lulzcube_location");
+
+                // Stack of lulzcubes to easily spot the instances
+                for (int i = 0; i < 10; i++)
+                {
+                    var lulzCube = Instantiate(lulzCubePrefab, cubesLocation.transform);
+                    lulzCube.transform.localPosition = new Vector3(0, i + 3, 0);
+                    lulzCube.transform.localRotation = Quaternion.Euler(0, i * 30, 0);
+                }
+
+                ZoneManager.Instance.AddCustomLocation(new CustomLocation(cubesLocation, new LocationConfig
+                {
+                    Biome = Heightmap.Biome.Meadows,
+                    Quantity = 100,
+                    Priotized = true,
+                    ExteriorRadius = 2f,
+                    ClearArea = true,
+                }));
+
+                //Use vegetation for singular prefabs
+                CustomVegetation customVegetation = new CustomVegetation(lulzCubePrefab, new VegetationConfig
+                {
+                    Biome = Heightmap.Biome.Meadows,
+                    BlockCheck = true
+                });
+
+                ZoneManager.Instance.AddCustomVegetation(customVegetation);
+
+                //Add more seed carrots to the meadows & black forest
+                ZoneSystem.ZoneVegetation pickableSeedCarrot = ZoneManager.Instance.GetZoneVegetation("Pickable_SeedCarrot");
+                ZoneManager.Instance.AddCustomVegetation(new CustomVegetation(pickableSeedCarrot.m_prefab, new VegetationConfig(pickableSeedCarrot)
+                {
+                    Min = 3,
+                    Max = 10,
+                    GroupSizeMin = 3,
+                    GroupSizeMax = 10,
+                    GroupRadius = 10,
+                    Biome = ZoneManager.AnyBiomeOf(Heightmap.Biome.Meadows, Heightmap.Biome.BlackForest),
+                }));
+            }
+            finally
+            {
+                //Custom locations and vegetations are added every time the game loads, we don't need to add every time
+                ZoneManager.OnVanillaLocationsAvailable -= AddCustomLocationsAndVegetation;
+                locationsAssetBundle.Unload(false);
+            }
+        }
+
     }
 }
