@@ -94,6 +94,7 @@
     <EmbeddedResource Include="AssetsEmbedded\steel" />
     <EmbeddedResource Include="AssetsEmbedded\kitbash" />
     <EmbeddedResource Include="AssetsEmbedded\cheatsword" />
+    <EmbeddedResource Include="AssetsEmbedded\custom_locations" />
     <None Include="Assets\jotunnlibtest" />
     <None Include="Assets\recipes.json" />
     <None Include="Assets\testblueprints" />
