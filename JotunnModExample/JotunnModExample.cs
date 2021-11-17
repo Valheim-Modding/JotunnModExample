@@ -14,7 +14,9 @@ using Jotunn.Managers;
 using Jotunn.Utils;
 using JotunnModExample.ConsoleCommands;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -31,7 +33,7 @@ namespace JotunnModExample
         // BepInEx' plugin metadata
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "2.3.8";
+        public const string PluginVersion = "2.3.12";
 
         // Your mod's custom localization
         private CustomLocalization Localization;
@@ -75,6 +77,9 @@ namespace JotunnModExample
         // Custom status effect
         private CustomStatusEffect EvilSwordEffect;
 
+        // Custom RPC
+        public static CustomRPC UselessRPC;
+
         private void Awake()
         {
             // Load, create and init your custom mod stuff
@@ -101,9 +106,15 @@ namespace JotunnModExample
             // Add a cloned item with a runtime-rendered icon
             PrefabManager.OnVanillaPrefabsAvailable += AddItemsWithRenderedIcons;
             
+            // Modify vanilla and add custom Locations and Vegetation
             ZoneManager.OnVanillaLocationsAvailable += ModifyVanillaLocationsAndVegetation;
             ZoneManager.OnVanillaLocationsAvailable += AddCustomLocationsAndVegetation;
 
+            // Add a custom command for our custom RPC call
+            CommandManager.Instance.AddConsoleCommand(new UselessRPCommand());
+
+            // Create your RPC as early as possible so it gets registered with the game
+            UselessRPC = NetworkManager.Instance.AddRPC("UselessRPC", UselessRPCServerReceive, UselessRPCClientReceive);
         }
 
         // Called every frame
@@ -551,7 +562,6 @@ namespace JotunnModExample
             CommandManager.Instance.AddConsoleCommand(new TpCommand());
             CommandManager.Instance.AddConsoleCommand(new ListPlayersCommand());
             CommandManager.Instance.AddConsoleCommand(new SkinColorCommand());
-            CommandManager.Instance.AddConsoleCommand(new RaiseSkillCommand());
             CommandManager.Instance.AddConsoleCommand(new BetterSpawnCommand());
         }
 
@@ -1141,26 +1151,24 @@ namespace JotunnModExample
         {
             try
             {
-                // local function that will get called when the rendering is done
-                void CreateTreeItem(Sprite sprite)
-                {
-                    CustomItem treeItem = new CustomItem("item_MyTree", "BeechSeeds",
-                        new ItemConfig
-                        {
-                            Name = "$rendered_tree",
-                            Description = "$rendered_tree_desc",
-                            Icons = new[] { sprite },
-                            Requirements = new[]
-                            {
-                                new RequirementConfig { Item = "Wood", Amount = 1, Recover = true }
-                            }
-                        });
-                    ItemManager.Instance.AddItem(treeItem);
-                }
-
-                // use the vanilla beech tree prefab to render our icon from
+                // Use the vanilla beech tree prefab to render our icon from
                 GameObject beech = PrefabManager.Instance.GetPrefab("Beech1");
-                RenderManager.Instance.EnqueueRender(beech, CreateTreeItem);
+
+                // Create the custom item with the rendered icon
+                CustomItem treeItem = new CustomItem("item_MyTree", "BeechSeeds", new ItemConfig
+                {
+                    Name = "$rendered_tree",
+                    Description = "$rendered_tree_desc",
+                    Icons = new[]
+                    {
+                        RenderManager.Instance.Render(beech)
+                    },
+                    Requirements = new[]
+                    {
+                        new RequirementConfig { Item = "Wood", Amount = 1, Recover = true }
+                    }
+                });
+                ItemManager.Instance.AddItem(treeItem);
             }
             catch (Exception ex)
             {
@@ -1172,7 +1180,6 @@ namespace JotunnModExample
                 PrefabManager.OnVanillaPrefabsAvailable -= AddItemsWithRenderedIcons;
             }
         }
-
 
         private void ModifyVanillaLocationsAndVegetation()
         {
@@ -1274,5 +1281,72 @@ namespace JotunnModExample
             }
         }
 
+        // Custom console command to invoke the custom RPC call
+        public class UselessRPCommand : ConsoleCommand
+        {
+            public override string Name => "useless_rpc";
+
+            public override string Help => "Send random data chunks over a custom RPC";
+
+            private int[] Sizes = { 0, 1, 2, 4 };
+
+            public override void Run(string[] args)
+            {
+                // Sanitize user's input
+                if (args.Length != 1 || !Sizes.Any(x => x.Equals(int.Parse(args[0]))))
+                {
+                    Console.instance.Print($"Usage: {Name} [{string.Join("|", Sizes)}]");
+                    return;
+                }
+
+                // Create a ZPackage and fill it with random bytes
+                ZPackage package = new ZPackage();
+                System.Random random = new System.Random();
+                byte[] array = new byte[int.Parse(args[0]) * 1024 * 1024];
+                random.NextBytes(array);
+                package.Write(array);
+
+                // Invoke the RPC with the server as the target and our random data package as the payload
+                Jotunn.Logger.LogMessage($"Sending {args[0]}MB blob to server.");
+                UselessRPC.SendPackage(ZRoutedRpc.instance.GetServerPeerID(), package);
+            }
+
+            public override List<string> CommandOptionList()
+            {
+                return Sizes.Select(x => x.ToString()).ToList();
+            }
+        }
+        
+        // React to the RPC call on a server
+        private IEnumerator UselessRPCServerReceive(long sender, ZPackage package)
+        {
+            Jotunn.Logger.LogMessage($"Received blob, processing");
+
+            string dot = string.Empty;
+            for (int i = 0; i < 5; ++i)
+            {
+                dot += ".";
+                Jotunn.Logger.LogMessage(dot);
+                yield return new WaitForSeconds(1f);
+            }
+
+            Jotunn.Logger.LogMessage($"Broadcasting to all clients");
+            UselessRPC.SendPackage(ZNet.instance.m_peers, new ZPackage(package.GetArray()));
+        }
+
+        // React to the RPC call on a client
+        private IEnumerator UselessRPCClientReceive(long sender, ZPackage package)
+        {
+            Jotunn.Logger.LogMessage($"Received blob, processing");
+            yield return null;
+
+            string dot = string.Empty;
+            for (int i = 0; i < 10; ++i)
+            {
+                dot += ".";
+                Jotunn.Logger.LogMessage(dot);
+                yield return new WaitForSeconds(.5f);
+            }
+        }
     }
 }
