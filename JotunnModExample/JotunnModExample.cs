@@ -33,7 +33,7 @@ namespace JotunnModExample
         // BepInEx' plugin metadata
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "2.3.12";
+        public const string PluginVersion = "2.4.0";
 
         // Your mod's custom localization
         private CustomLocalization Localization;
@@ -105,7 +105,7 @@ namespace JotunnModExample
 
             // Add a cloned item with a runtime-rendered icon
             PrefabManager.OnVanillaPrefabsAvailable += AddItemsWithRenderedIcons;
-            
+
             // Modify vanilla and add custom Locations and Vegetation
             ZoneManager.OnVanillaLocationsAvailable += ModifyVanillaLocationsAndVegetation;
             ZoneManager.OnVanillaLocationsAvailable += AddCustomLocationsAndVegetation;
@@ -141,7 +141,7 @@ namespace JotunnModExample
                 // without knowing what key the user bound to this button in his configuration.
                 // Our button is configured to block all other input, so we just want to query
                 // ZInput when our custom item is equipped.
-                if (EvilSwordSpecialButton != null && MessageHud.instance != null && 
+                if (EvilSwordSpecialButton != null && MessageHud.instance != null &&
                     Player.m_localPlayer != null && Player.m_localPlayer.m_visEquipment.m_rightItem == "EvilSword")
                 {
                     if (ZInput.GetButton(EvilSwordSpecialButton.Name) && MessageHud.instance.m_msgQeue.Count == 0)
@@ -219,7 +219,7 @@ namespace JotunnModExample
                     width: 350f,
                     height: 40f,
                     addContentSizeFitter: false);
-                
+
                 // Create the button object
                 GameObject buttonObject = GUIManager.Instance.CreateButton(
                     text: "A Test Button - long dong schlongsen text",
@@ -375,8 +375,8 @@ namespace JotunnModExample
                 new ConfigDescription("Server side bool", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
             Config.Bind("ServerConfig", "KeyboardShortcutValue",
-                new KeyboardShortcut(KeyCode.A, KeyCode.LeftControl), 
-                    new ConfigDescription("Server side KeyboardShortcut", null, 
+                new KeyboardShortcut(KeyCode.A, KeyCode.LeftControl),
+                    new ConfigDescription("Server side KeyboardShortcut", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             // Colored text configs
@@ -395,7 +395,7 @@ namespace JotunnModExample
             // Also add an alternative Gamepad button for the EvilSword
             EvilSwordGamepadConfig = Config.Bind("Client config", "EvilSword Special Attack Gamepad", InputManager.GamepadButton.ButtonSouth,
                 new ConfigDescription("Button to unleash evil with the Evil Sword"));
-            
+
             // BepInEx' KeyboardShortcut class is supported, too
             ShortcutConfig = Config.Bind("Client config", "Keycodes with modifiers",
                 new KeyboardShortcut(KeyCode.L, KeyCode.LeftControl, KeyCode.LeftAlt),
@@ -891,7 +891,7 @@ namespace JotunnModExample
                 BoneReorder.ApplyOnEquipmentChanged();
             }
             EmbeddedResourceBundle.Unload(false);
-            
+
             // Load completely mocked "Shit Sword" (Cheat Sword copy)
             var cheatybundle = AssetUtils.LoadAssetBundleFromResources("cheatsword", typeof(JotunnModExample).Assembly);
             var cheaty = cheatybundle.LoadAsset<GameObject>("Cheaty");
@@ -988,7 +988,7 @@ namespace JotunnModExample
                 };
 
                 PieceManager.Instance.AddPiece(
-                    new CustomPiece(kitbashObject.Prefab, fixReference: false, 
+                    new CustomPiece(kitbashObject.Prefab, fixReference: false,
                     new PieceConfig
                     {
                         PieceTable = "Hammer",
@@ -1024,7 +1024,7 @@ namespace JotunnModExample
                 var itemDrop = CI.ItemDrop;
                 itemDrop.m_itemData.m_shared.m_name = "$item_evilsword";
                 itemDrop.m_itemData.m_shared.m_description = "$item_evilsword_desc";
-                
+
                 // Add our custom status effect to it
                 itemDrop.m_itemData.m_shared.m_equipStatusEffect = EvilSwordEffect.StatusEffect;
 
@@ -1118,7 +1118,7 @@ namespace JotunnModExample
                     StyleTex = styleTex
                 });
                 ItemManager.Instance.AddItem(shield);
-                
+
                 CustomItem sword = new CustomItem("item_lulzsword", "SwordBronze", new ItemConfig
                 {
                     Name = "$lulz_sword",
@@ -1201,7 +1201,7 @@ namespace JotunnModExample
         }
 
         private void AddCustomLocationsAndVegetation()
-        { 
+        {
             AssetBundle locationsAssetBundle = AssetUtils.LoadAssetBundleFromResources("custom_locations", typeof(JotunnModExample).Assembly);
             try
             {
@@ -1316,7 +1316,7 @@ namespace JotunnModExample
                 return Sizes.Select(x => x.ToString()).ToList();
             }
         }
-        
+
         // React to the RPC call on a server
         private IEnumerator UselessRPCServerReceive(long sender, ZPackage package)
         {
