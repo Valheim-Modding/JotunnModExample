@@ -190,7 +190,7 @@ PrefabInstance:
     - target: {fileID: 6263744554749538449, guid: 97ea568289a82b1409805a5276689a3e,
         type: 3}
       propertyPath: m_Name
-      value: JVLmock_piece_lul (6)
+      value: JVLmock_piece_lul
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97ea568289a82b1409805a5276689a3e, type: 3}
@@ -865,7 +865,7 @@ PrefabInstance:
     - target: {fileID: 6263744554749538449, guid: 97ea568289a82b1409805a5276689a3e,
         type: 3}
       propertyPath: m_Name
-      value: JVLmock_piece_lul (5)
+      value: JVLmock_piece_lul
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97ea568289a82b1409805a5276689a3e, type: 3}
@@ -940,7 +940,7 @@ PrefabInstance:
     - target: {fileID: 6263744554749538449, guid: 97ea568289a82b1409805a5276689a3e,
         type: 3}
       propertyPath: m_Name
-      value: JVLmock_piece_lul (7)
+      value: JVLmock_piece_lul
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97ea568289a82b1409805a5276689a3e, type: 3}
@@ -1015,7 +1015,7 @@ PrefabInstance:
     - target: {fileID: 6263744554749538449, guid: 97ea568289a82b1409805a5276689a3e,
         type: 3}
       propertyPath: m_Name
-      value: JVLmock_piece_lul (4)
+      value: JVLmock_piece_lul
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97ea568289a82b1409805a5276689a3e, type: 3}
