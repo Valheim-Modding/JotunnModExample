@@ -7,6 +7,7 @@
 
 using BepInEx;
 using BepInEx.Configuration;
+using Jotunn;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.GUI;
@@ -33,7 +34,7 @@ namespace JotunnModExample
         // BepInEx' plugin metadata
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "2.4.0";
+        public const string PluginVersion = "2.4.5";
 
         // Your mod's custom localization
         private CustomLocalization Localization;
@@ -115,8 +116,14 @@ namespace JotunnModExample
 
             // Create your RPC as early as possible so it gets registered with the game
             UselessRPC = NetworkManager.Instance.AddRPC("UselessRPC", UselessRPCServerReceive, UselessRPCClientReceive);
-        }
 
+            // Add map overlays to the minimap on world load
+            MinimapManager.OnVanillaMapAvailable += CreateMapOverlay;
+
+            // Add map overlays to the minimap after map data has been loaded
+            MinimapManager.OnVanillaMapDataLoaded += CreateMapDrawing;
+        }
+        
         // Called every frame
         private void Update()
         {
@@ -1347,6 +1354,80 @@ namespace JotunnModExample
                 Jotunn.Logger.LogMessage(dot);
                 yield return new WaitForSeconds(.5f);
             }
+        }
+        
+        // Map overlay showing the zone boundaries
+        private void CreateMapOverlay()
+        {
+            // Get or create a map overlay instance by name
+            var zoneOverlay = MinimapManager.Instance.GetMapOverlay("ZoneOverlay");
+
+            // Create a Color array with space for every pixel of the map
+            int mapSize = zoneOverlay.TextureSize * zoneOverlay.TextureSize;
+            Color[] mainPixels = new Color[mapSize];
+            
+            // Iterate over the dimensions of the overlay and set a color for
+            // every pixel in our mainPixels array wherever a zone boundary is
+            Color color = Color.white;
+            int zoneSize = 64;
+            int index = 0;
+            for (int x = 0; x < zoneOverlay.TextureSize; ++x)
+            {
+                for (int y = 0; y < zoneOverlay.TextureSize; ++y, ++index)
+                {
+                    if (x % zoneSize == 0 || y % zoneSize == 0)
+                    {
+                        mainPixels[index] = color;
+                    }
+                }
+            }
+
+            // Set the pixel array on the overlay texture
+            // This is much faster than setting every pixel individually
+            zoneOverlay.OverlayTex.SetPixels(mainPixels);
+
+            // Apply the changes to the overlay
+            // This also triggers the MinimapManager to display this overlay
+            zoneOverlay.OverlayTex.Apply();
+        }
+        
+        // Draw a square starting at every map pin
+        private void CreateMapDrawing()
+        {
+            // Get or create a map drawing instance by name
+            var pinOverlay = MinimapManager.Instance.GetMapDrawing("PinOverlay");
+
+            // Create Color arrays which can be set as a block on the texture
+            // Note: "Populate" is an extension method provided by Jötunn
+            // filling the new array with the provided value
+            int squareSize = 10;
+            Color[] colorPixels = new Color[squareSize*squareSize].Populate(Color.blue);
+            Color[] filterPixels = new Color[squareSize*squareSize].Populate(MinimapManager.FilterOff);
+            Color[] heightPixels = new Color[squareSize*squareSize].Populate(MinimapManager.MeadowHeight);
+
+            // Loop every loaded pin
+            foreach (var p in Minimap.instance.m_pins)
+            {
+                // Translate the world position of the pin to the overlay position
+                var pos = MinimapManager.Instance.WorldToOverlayCoords(p.m_pos, pinOverlay.TextureSize);
+                
+                // Set a block of pixels on the MainTex to make the map use our color instead of the vanilla one
+                pinOverlay.MainTex.SetPixels((int)pos.x, (int)pos.y, squareSize, squareSize, colorPixels);
+                
+                // Set a block of pixels on the ForestFilter and FogFilter, removing forest and fog from the map
+                pinOverlay.ForestFilter.SetPixels((int)pos.x, (int)pos.y, squareSize, squareSize, filterPixels);
+                pinOverlay.FogFilter.SetPixels((int)pos.x, (int)pos.y, squareSize, squareSize, filterPixels);
+
+                // Set a block of pixels on the HeightFilter so our square will always be drawn at meadow height
+                pinOverlay.HeightFilter.SetPixels((int)pos.x, (int)pos.y, squareSize, squareSize, heightPixels);
+            }
+            
+            // Apply the changes to all textures
+            // This also triggers the MinimapManager to display this drawing
+            pinOverlay.MainTex.Apply();
+            pinOverlay.FogFilter.Apply();
+            pinOverlay.ForestFilter.Apply();
+            pinOverlay.HeightFilter.Apply();
         }
     }
 }
