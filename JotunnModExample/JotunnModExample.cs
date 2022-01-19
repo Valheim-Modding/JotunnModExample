@@ -1194,23 +1194,6 @@ namespace JotunnModExample
             AssetBundle locationsAssetBundle = AssetUtils.LoadAssetBundleFromResources("custom_locations", typeof(JotunnModExample).Assembly);
             try
             {
-                // Create location from AssetBundle
-                var cubeArchLocation =
-                    ZoneManager.Instance.CreateLocationContainer(
-                        locationsAssetBundle.LoadAsset<GameObject>("CubeArchLocation"));
-
-                ZoneManager.Instance.AddCustomLocation(
-                    new CustomLocation(cubeArchLocation, true,
-                        new LocationConfig
-                        {
-                            Biome = Heightmap.Biome.BlackForest,
-                            Quantity = 200,
-                            Priotized = true,
-                            ExteriorRadius = 2f,
-                            MinAltitude = 1f,
-                            ClearArea = true
-                        }));
-
                 // Create location from AssetBundle using spawners and random spawns
                 var spawnerLocation =
                     ZoneManager.Instance.CreateLocationContainer(
@@ -1316,7 +1299,7 @@ namespace JotunnModExample
 
         private void ModifyVanillaLocationsAndVegetation()
         {
-            var lulzCubePrefab = PrefabManager.Instance.GetPrefab("piece_lul");
+            var lulzCubePrefab = PrefabManager.Instance.GetPrefab("piece_lel");
 
             // Modify existing locations
             var eikhtyrLocation = ZoneManager.Instance.GetZoneLocation("Eikthyrnir");
