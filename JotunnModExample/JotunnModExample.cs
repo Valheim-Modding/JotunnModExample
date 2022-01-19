@@ -595,7 +595,7 @@ namespace JotunnModExample
             CustomRecipe meatRecipe = new CustomRecipe(new RecipeConfig()
             {
                 Item = "CookedMeat",                    // Name of the item prefab to be crafted
-                Requirements = new RequirementConfig[]  // Resources and amount needed for it to be crafted
+                Requirements = new[]  // Resources and amount needed for it to be crafted
                 {
                     new RequirementConfig { Item = "Stone", Amount = 2 },
                     new RequirementConfig { Item = "Wood", Amount = 1 }
@@ -968,7 +968,7 @@ namespace JotunnModExample
                             TargetParentPath = "new",
                             Position = new Vector3(-1.185f, -0.465f, 1.196f),
                             Rotation = Quaternion.Euler(-90f, 0, 0),
-                            Scale = Vector3.one,Materials = new string[]{
+                            Scale = Vector3.one,Materials = new[]{
                                 "obsidian_nosnow",
                                 "bronze"
                             }
@@ -981,7 +981,7 @@ namespace JotunnModExample
                             Position = new Vector3(0, 0.0591f ,0),
                             Rotation = Quaternion.identity,
                             Scale = Vector3.one * 0.2f,
-                            Materials = new string[]{
+                            Materials = new[]{
                                 "bronze",
                                 "obsidian_nosnow"
                             }
@@ -1000,7 +1000,7 @@ namespace JotunnModExample
                     new PieceConfig
                     {
                         PieceTable = "Hammer",
-                        Requirements = new RequirementConfig[]
+                        Requirements = new[]
                         {
                             new RequirementConfig { Item = "Obsidian" , Recover = true},
                             new RequirementConfig { Item = "Bronze", Recover = true }
@@ -1294,7 +1294,6 @@ namespace JotunnModExample
                 // Custom locations and vegetations are added every time the game loads, we don't need to add every time
                 ZoneManager.OnVanillaLocationsAvailable -= AddClonedVanillaLocationsAndVegetations;
             }
-
         }
 
         private void ModifyVanillaLocationsAndVegetation()
