@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 6442925800437554178}
   - component: {fileID: 8704025085421299848}
   m_Layer: 0
-  m_Name: CubeThing
+  m_Name: LulzThing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
