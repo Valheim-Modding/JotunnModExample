@@ -1195,10 +1195,15 @@ namespace JotunnModExample
             try
             {
                 // Create location from AssetBundle using spawners and random spawns
+                var spawnerLocation = locationsAssetBundle.LoadAsset<GameObject>("SpawnerLocation");
+
+                // Create a location container from your prefab if you want to alter it before adding the location to the manager.
+                /*
                 var spawnerLocation =
                     ZoneManager.Instance.CreateLocationContainer(
                         locationsAssetBundle.LoadAsset<GameObject>("SpawnerLocation"));
-
+                */
+                
                 ZoneManager.Instance.AddCustomLocation(
                     new CustomLocation(spawnerLocation, true,
                         new LocationConfig
