@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5714004205098893970}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: EyePos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 8980455264100721923}
   - component: {fileID: 8860251369744916710}
   - component: {fileID: 1691263237315065067}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 6001113707615209783}
   - component: {fileID: 6442925800437554178}
   - component: {fileID: 8704025085421299848}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: LulzThing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
