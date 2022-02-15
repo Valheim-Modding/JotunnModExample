@@ -1337,53 +1337,27 @@ namespace JotunnModExample
             AssetBundle creaturesAssetBundle = AssetUtils.LoadAssetBundleFromResources("creatures", typeof(JotunnModExample).Assembly);
             try
             {
-                // Create creature from AssetBundle
-                var lulzThing = creaturesAssetBundle.LoadAsset<GameObject>("LulzThing");
+                // Load LulzCube test texture and sprite
+                var lulztex = AssetUtils.LoadTexture("JotunnModExample/Assets/test_tex.jpg");
+                var lulzsprite = Sprite.Create(lulztex, new Rect(0f, 0f, lulztex.width, lulztex.height), Vector2.zero);
 
-                // Set our lulzcube test texture on the first material found
-                var lulztex = AssetUtils.LoadTexture("TestMod/Assets/test_tex.jpg");
-                lulzThing.GetComponentInChildren<MeshRenderer>().material.mainTexture = lulztex;
+                // Create an optional drop/consume item for this creature
+                CreateDropConsumeItem(lulzsprite, lulztex);
+
+                // Load and create a custom animal creature
+                CreateAnimalCreature(creaturesAssetBundle, lulztex);
                 
-                // Create a custom creature with one drop and two spawn configs
-                var cubeCreature = new CustomCreature(lulzThing, false,
-                    new CreatureConfig
-                    {
-                        Name = "LulzThing",
-                        DropConfigs = new []
-                        {
-                            new DropConfig
-                            {
-                                Item = "Sausages",
-                                Chance = 50f,
-                                LevelMultiplier = false,
-                                MinAmount = 2,
-                                MaxAmount = 3,
-                                //OnePerPlayer = true
-                            }
-                        },
-                        SpawnConfigs = new []
-                        {
-                            new SpawnConfig
-                            {
-                                Name = "Jotunn_LulzSpawn1",
-                                SpawnChance = 100,
-                                SpawnInterval = 1f,
-                                SpawnDistance = 1f,
-                                MaxSpawned = 10,
-                                Biome = Heightmap.Biome.Meadows
-                            },
-                            new SpawnConfig
-                            {
-                                Name = "Jotunn_LulzSpawn2",
-                                SpawnChance = 50,
-                                SpawnInterval = 2f,
-                                SpawnDistance = 2f,
-                                MaxSpawned = 5,
-                                Biome = ZoneManager.AnyBiomeOf(Heightmap.Biome.BlackForest, Heightmap.Biome.Plains)
-                            }
-                        }
-                    });
-                CreatureManager.Instance.AddCreature(cubeCreature);
+                // Load and create a custom monster creature
+                CreateMonsterCreature(creaturesAssetBundle, lulztex);
+                
+                // Add localization for all stuff added
+                Localization.AddTranslation("English", new Dictionary<string, string>
+                {
+                    {"item_lulzanimalparts", "Parts of a Lulz Animal"},
+                    {"item_lulzanimalparts_desc", "Remains of a LulzAnimal. It still giggles when touched."},
+                    {"creature_lulzanimal", "Lulz Animal"},
+                    {"creature_lulzmonster", "Lulz Monster"}
+                });
             }
             catch (Exception ex)
             {
@@ -1394,7 +1368,125 @@ namespace JotunnModExample
                 creaturesAssetBundle.Unload(false);
             }
         }
+
+        private void CreateDropConsumeItem(Sprite lulzsprite, Texture2D lulztex)
+        {
+            // Create a little lulz cube as the drop and consume item for both creatures
+            var lulzItem = new CustomItem("item_lul", true, new ItemConfig
+            {
+                Name = "$item_lulzanimalparts",
+                Description = "$item_lulzanimalparts_desc",
+                Icons = new[] {lulzsprite}
+            });
+            lulzItem.ItemDrop.m_itemData.m_shared.m_maxStackSize = 20;
+            lulzItem.ItemPrefab.AddComponent<Rigidbody>();
+
+            // Set our lulzcube test texture on the first material found
+            lulzItem.ItemPrefab.GetComponentInChildren<MeshRenderer>().material.mainTexture = lulztex;
+
+            // Make it smol
+            lulzItem.ItemPrefab.GetComponent<ZNetView>().m_syncInitialScale = true;
+            lulzItem.ItemPrefab.transform.localScale = new Vector3(0.33f, 0.33f, 0.33f);
+
+            // Add to the ItemManager
+            ItemManager.Instance.AddItem(lulzItem);
+        }
         
+        private void CreateAnimalCreature(AssetBundle creaturesAssetBundle, Texture2D lulztex)
+        {
+            // Load creature prefab from AssetBundle
+            var lulzAnimalPrefab = creaturesAssetBundle.LoadAsset<GameObject>("LulzAnimal");
+
+            // Set our lulzcube test texture on the first material found
+            lulzAnimalPrefab.GetComponentInChildren<MeshRenderer>().material.mainTexture = lulztex;
+
+            // Create a custom creature using our drop item and spawn configs
+            var lulzAnimal = new CustomCreature(lulzAnimalPrefab, false,
+                new CreatureConfig
+                {
+                    Name = "$creature_lulzanimal",
+                    Faction = Character.Faction.AnimalsVeg,
+                    DropConfigs = new[]
+                    {
+                        new DropConfig
+                        {
+                            Item = "item_lul",
+                            Chance = 100f,
+                            LevelMultiplier = false,
+                            MinAmount = 1,
+                            MaxAmount = 3,
+                            //OnePerPlayer = true
+                        }
+                    },
+                    SpawnConfigs = new[]
+                    {
+                        new SpawnConfig
+                        {
+                            Name = "Jotunn_LulzAnimalSpawn1",
+                            SpawnChance = 100f,
+                            SpawnInterval = 1f,
+                            SpawnDistance = 1f,
+                            MaxSpawned = 10,
+                            Biome = Heightmap.Biome.Meadows
+                        },
+                        new SpawnConfig
+                        {
+                            Name = "Jotunn_LulzAnimalSpawn2",
+                            SpawnChance = 50f,
+                            SpawnInterval = 2f,
+                            SpawnDistance = 2f,
+                            MaxSpawned = 5,
+                            Biome = ZoneManager.AnyBiomeOf(Heightmap.Biome.BlackForest, Heightmap.Biome.Plains)
+                        }
+                    }
+                });
+            
+            // Add it to the manager
+            CreatureManager.Instance.AddCreature(lulzAnimal);
+        }
+        
+        private void CreateMonsterCreature(AssetBundle creaturesAssetBundle, Texture2D lulztex)
+        {
+            // Load creature prefab from AssetBundle
+            var lulzMonsterPrefab = creaturesAssetBundle.LoadAsset<GameObject>("LulzMonster");
+
+            // Set our lulzcube test texture on the first material found
+            lulzMonsterPrefab.GetComponentInChildren<MeshRenderer>().material.mainTexture = lulztex;
+
+            // Create a custom creature using our consume item and spawn configs
+            var lulzMonster = new CustomCreature(lulzMonsterPrefab, true,
+                new CreatureConfig
+                {
+                    Name = "$creature_lulzmonster",
+                    Faction = Character.Faction.ForestMonsters,
+                    UseCumulativeLevelEffects = true,
+                    Consumables = new[]
+                    {
+                        "item_lul"
+                    },
+                    SpawnConfigs = new[]
+                    {
+                        new SpawnConfig
+                        {
+                            Name = "Jotunn_LulzMonsterSpawn1",
+                            SpawnChance = 100f,
+                            MaxSpawned = 1,
+                            Biome = Heightmap.Biome.Meadows
+                        },
+                        new SpawnConfig
+                        {
+                            Name = "Jotunn_LulzMonsterSpawn2",
+                            SpawnChance = 50f,
+                            MaxSpawned = 1,
+                            Biome = ZoneManager.AnyBiomeOf(Heightmap.Biome.BlackForest, Heightmap.Biome.Plains)
+                        }
+                    }
+                });
+
+            // Add it to the manager
+            CreatureManager.Instance.AddCreature(lulzMonster);
+        }
+
         // Modify and clone vanilla creatures
         private void ModifyAndCloneVanillaCreatures()
         {
@@ -1422,8 +1514,8 @@ namespace JotunnModExample
                 CreatureManager.Instance.AddCreature(lulzeton);
 
                 // Get a vanilla creature prefab and change some values
-                var goblin = CreatureManager.Instance.GetCreaturePrefab("Skeleton_NoArcher");
-                var humanoid = goblin.GetComponent<Humanoid>();
+                var skeleton = CreatureManager.Instance.GetCreaturePrefab("Skeleton_NoArcher");
+                var humanoid = skeleton.GetComponent<Humanoid>();
                 humanoid.m_walkSpeed = 2;
             }
             catch (Exception ex)
