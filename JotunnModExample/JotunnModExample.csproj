@@ -95,6 +95,7 @@
     <EmbeddedResource Include="AssetsEmbedded\kitbash" />
     <EmbeddedResource Include="AssetsEmbedded\cheatsword" />
     <EmbeddedResource Include="AssetsEmbedded\custom_locations" />
+    <EmbeddedResource Include="AssetsEmbedded\creatures" />
     <None Include="Assets\jotunnlibtest" />
     <None Include="Assets\recipes.json" />
     <None Include="Assets\testblueprints" />
@@ -113,6 +114,8 @@
     <Content Include="Assets\test_tex.jpg" />
     <Content Include="Assets\test_var1.png" />
     <Content Include="Assets\test_var2.png" />
+    <Content Include="Assets\test_var3.png" />
+    <Content Include="Assets\test_var4.png" />
     <Content Include="Assets\test_varpaint.png" />
     <Content Include="Package\icon.png" />
   </ItemGroup>

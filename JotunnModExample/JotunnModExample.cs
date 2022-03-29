@@ -873,6 +873,21 @@ namespace JotunnModExample
 
                 PieceManager.Instance.AddPiece(CP);
             }
+            
+            // Add lal piece for vegetation
+            Sprite var4 = AssetUtils.LoadSpriteFromFile("JotunnModExample/Assets/test_var4.png");
+            CP = new CustomPiece("piece_lal", true, new PieceConfig
+            {
+                Name = "Lalalal",
+                Description = "<3",
+                Icon = var4,
+                PieceTable = "Hammer",
+                ExtendStation = "piece_workbench", // Test station extension
+                Category = "Lulzies"  // Test custom category
+            });
+            PieceManager.Instance.AddPiece(CP);
+            CP.PiecePrefab.GetComponent<MeshRenderer>().material.mainTexture = var4.texture;
+
         }
 
         // Implementation of assets using mocks, adding recipe's manually without the config abstraction
