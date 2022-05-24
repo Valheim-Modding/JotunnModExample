@@ -34,7 +34,7 @@ namespace JotunnModExample
         // BepInEx' plugin metadata
         public const string PluginGUID = "com.jotunn.JotunnModExample";
         public const string PluginName = "JotunnModExample";
-        public const string PluginVersion = "2.4.5";
+        public const string PluginVersion = "2.6.7";
 
         // Your mod's custom localization
         private CustomLocalization Localization;
