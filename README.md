@@ -7,7 +7,7 @@ How to setup the development enviroment for this project.
 
 1. Install [Visual Studio 2022](https://visualstudio.microsoft.com) and add the C# workload.
 2. Download this package: [BepInEx pack for Valheim](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/)
-3. Unpack into your Valheim root folder. You should now see a new folder called `<ValheimDir>\unstripped_corlib` and more additional stuff.
+3. Unpack and copy the contents of `BepInExPack_Valheim` into your Valheim root folder. You should now see a new folder called `<ValheimDir>\unstripped_corlib` and more additional stuff.
 4. Clone this repository using git.
 5. Create a new environment file `Environment.props` in the projects base path `<JotunnModExample>`. Paste this snippet and change the path according to your local Valheim installation.
 ```xml
