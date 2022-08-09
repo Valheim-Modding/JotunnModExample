@@ -289,7 +289,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5636728676231886403}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b72edff66757b14d82bfec7921e7d4b, type: 3}
+  m_Script: {fileID: 11500000, guid: ac80f08f04fb6cf4bba54cdd5591daeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_hoverText: 
@@ -480,7 +480,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7468294870332611794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ae26648d070a1341ab99591e5799d31, type: 3}
+  m_Script: {fileID: 11500000, guid: 6723e41f7f844ee45b6aef3f9f2e3e11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_footIK: 0
@@ -512,7 +512,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7468294870332611794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c821ccba1ba0f534f99d24b6c02ea09a, type: 3}
+  m_Script: {fileID: 11500000, guid: 78fc56b7f186ad948bb1fda2fe717e9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_mainRender: {fileID: 8980455264100721923}
@@ -705,7 +705,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9053515942561342261}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bbf22469d96cf2e41976ac7d7e773311, type: 3}
+  m_Script: {fileID: 11500000, guid: 845a53abe5f556c42b74d930bd811a21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_persistent: 1
@@ -721,7 +721,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9053515942561342261}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4febfc503362bff42bfbaa61945d4f33, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d9784f67bd10c342b1ac02afb71bfc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_syncPosition: 1
@@ -738,7 +738,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9053515942561342261}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e45266a195f778419c5f50eb3d501fb, type: 3}
+  m_Script: {fileID: 11500000, guid: 059cc4bad1bad9d43b43c6dbac537bc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_syncBools: []
@@ -754,7 +754,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9053515942561342261}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2fbe7d5786af5d4f8d4a814ac65966f, type: 3}
+  m_Script: {fileID: 11500000, guid: c16d08b74af7e4943b6b36bedffa637b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_name: $creature_lulzmonster
@@ -848,7 +848,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9053515942561342261}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d581947bde122f1478a59a2ffe20da4d, type: 3}
+  m_Script: {fileID: 11500000, guid: 59b8dc8065e6f5d428782968ef85862c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_viewRange: 50
@@ -920,7 +920,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9053515942561342261}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09364ab87f37a054bbdfc9d2702a7b12, type: 3}
+  m_Script: {fileID: 11500000, guid: 9cb78f9a3c680cd48b289567e130a497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_fedDuration: 30
