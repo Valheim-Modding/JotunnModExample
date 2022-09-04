@@ -44,6 +44,7 @@ namespace JotunnModExample
         private AssetBundle BlueprintRuneBundle;
         private AssetBundle SteelIngotBundle;
         private AssetBundle EmbeddedResourceBundle;
+        private AssetBundle ClutterBundle;
         private GameObject BackpackPrefab;
 
         // Test assets
@@ -102,6 +103,7 @@ namespace JotunnModExample
             AddMockedItems();
             AddKitbashedPieces();
             AddConePiece();
+            AddCustomClutter();
 
             // Add custom items cloned from vanilla items
             PrefabManager.OnVanillaPrefabsAvailable += AddClonedItems;
@@ -472,6 +474,7 @@ namespace JotunnModExample
             EmbeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", typeof(JotunnModExample).Assembly);
             BackpackPrefab = EmbeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
             SteelIngotBundle = AssetUtils.LoadAssetBundleFromResources("steel");
+            ClutterBundle = AssetUtils.LoadAssetBundleFromResources("clutterbundle");
         }
 
         // Add custom key bindings
@@ -919,6 +922,13 @@ namespace JotunnModExample
 
             // You want that to run only once, Jotunn has the piece cached for the game session
             PrefabManager.OnVanillaPrefabsAvailable -= CreateDeerRugPiece;
+        }
+
+        private void AddCustomClutter()
+        {
+            ClutterConfig stone = new ClutterConfig();
+            stone.Amount = 5;
+            ZoneManager.Instance.AddCustomClutter(new CustomClutter(ClutterBundle, "TestStone", false, stone));
         }
 
         // Adds Kitbashed pieces
