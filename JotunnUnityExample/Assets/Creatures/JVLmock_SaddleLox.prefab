@@ -40,7 +40,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2638095894392640902}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da22527f62fa88345bcc94766be92a3d, type: 3}
+  m_Script: {fileID: 825357479, guid: b27928b282fbc4e42905007debba74d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_autoPickup: 1

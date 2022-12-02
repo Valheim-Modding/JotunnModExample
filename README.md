@@ -26,3 +26,6 @@ Paste this snippet and change the paths accordingly.
   </PropertyGroup>
 </Project>
 ```
+
+## Unity
+To open the embedded Unity project you first have to copy all game dlls starting with `assembly_` found at `<Valheim>\valheim_Data\Managed` to `<JotunnModExample>\JotunnUnityExample\Assets\Assemblies`. Copy these **before** you open the project and only copy them using the **explorer**.
