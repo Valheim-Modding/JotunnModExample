@@ -56,6 +56,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -80,6 +81,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &58073941435655817
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -149,6 +151,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -173,6 +176,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &8743504355772684786
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -327,6 +331,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -351,6 +356,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!64 &2112175657682857700
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -428,6 +434,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -452,6 +459,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!95 &8860251369744916710
 Animator:
   serializedVersion: 3
@@ -589,6 +597,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -613,6 +622,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &6698894651616105568
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -757,6 +767,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c16d08b74af7e4943b6b36bedffa637b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_nViewOverride: {fileID: 0}
   m_name: $creature_lulzmonster
   m_group: 
   m_faction: 1
@@ -786,6 +797,7 @@ MonoBehaviour:
   m_groundTiltSpeed: 50
   m_flying: 0
   m_jumpStaminaUsage: 10
+  m_disableWhileSleeping: 0
   m_eye: {fileID: 5714004205098893970}
   m_hitEffects:
     m_effectPrefabs: []
@@ -899,9 +911,9 @@ MonoBehaviour:
   m_circleTargetDuration: 5
   m_circleTargetDistance: 10
   m_sleeping: 0
-  m_noiseWakeup: 0
-  m_noiseRangeScale: 1
   m_wakeupRange: 5
+  m_noiseWakeup: 0
+  m_maxNoiseWakeupRange: 50
   m_wakeupEffects:
     m_effectPrefabs: []
   m_wakeUpDelayMin: 0
