@@ -17,6 +17,7 @@ using JotunnModExample.ConsoleCommands;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -461,20 +462,26 @@ namespace JotunnModExample
         // Various forms of asset loading
         private void LoadAssets()
         {
+            // path to the folder where the mod dll is located
+            string modPath = Path.GetDirectoryName(Info.Location);
+
             // Load texture from the filesystem
-            TestTex = AssetUtils.LoadTexture("JotunnModExample/Assets/test_tex.jpg");
+            TestTex = AssetUtils.LoadTexture(Path.Combine(modPath, "Assets/test_tex.jpg"));
             TestSprite = Sprite.Create(TestTex, new Rect(0f, 0f, TestTex.width, TestTex.height), Vector2.zero);
 
             // Load asset bundle from the filesystem
-            TestAssets = AssetUtils.LoadAssetBundle("JotunnModExample/Assets/jotunnlibtest");
+            TestAssets = AssetUtils.LoadAssetBundle(Path.Combine(modPath, "Assets/jotunnlibtest"));
             Jotunn.Logger.LogInfo(TestAssets);
 
-            // Load asset bundle from embedded resources
-            Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(",", typeof(JotunnModExample).Assembly.GetManifestResourceNames())}");
-            EmbeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks", typeof(JotunnModExample).Assembly);
-            BackpackPrefab = EmbeddedResourceBundle.LoadAsset<GameObject>("Assets/Evie/CapeSilverBackpack.prefab");
+            // Print Embedded Resources
+            Jotunn.Logger.LogInfo($"Embedded resources: {string.Join(", ", typeof(JotunnModExample).Assembly.GetManifestResourceNames())}");
+
+            // Load asset bundles from embedded resources
+            EmbeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("eviesbackpacks");
             SteelIngotBundle = AssetUtils.LoadAssetBundleFromResources("steel");
             ClutterBundle = AssetUtils.LoadAssetBundleFromResources("clutterbundle");
+
+            BackpackPrefab = EmbeddedResourceBundle.LoadAsset<GameObject>("CapeSilverBackpack");
         }
 
         // Add custom key bindings
