@@ -1478,6 +1478,8 @@ namespace JotunnModExample
             }
         }
 
+        public static readonly WaitForSeconds OneSecondWait = new WaitForSeconds(1f);
+
         // React to the RPC call on a server
         private IEnumerator UselessRPCServerReceive(long sender, ZPackage package)
         {
@@ -1488,12 +1490,14 @@ namespace JotunnModExample
             {
                 dot += ".";
                 Jotunn.Logger.LogMessage(dot);
-                yield return new WaitForSeconds(1f);
+                yield return OneSecondWait;
             }
 
             Jotunn.Logger.LogMessage($"Broadcasting to all clients");
             UselessRPC.SendPackage(ZNet.instance.m_peers, new ZPackage(package.GetArray()));
         }
+
+        public static readonly WaitForSeconds HalfSecondWait = new WaitForSeconds(0.5f);
 
         // React to the RPC call on a client
         private IEnumerator UselessRPCClientReceive(long sender, ZPackage package)
@@ -1506,7 +1510,7 @@ namespace JotunnModExample
             {
                 dot += ".";
                 Jotunn.Logger.LogMessage(dot);
-                yield return new WaitForSeconds(.5f);
+                yield return HalfSecondWait;
             }
         }
         
