@@ -466,11 +466,11 @@ namespace JotunnModExample
             string modPath = Path.GetDirectoryName(Info.Location);
 
             // Load texture from the filesystem
-            TestTex = AssetUtils.LoadTexture(Path.Combine(modPath, "Assets/test_tex.jpg"));
+            TestTex = AssetUtils.LoadTexture(Path.Combine(modPath, "JotunnModExample/Assets/test_tex.jpg"));
             TestSprite = Sprite.Create(TestTex, new Rect(0f, 0f, TestTex.width, TestTex.height), Vector2.zero);
 
             // Load asset bundle from the filesystem
-            TestAssets = AssetUtils.LoadAssetBundle(Path.Combine(modPath, "Assets/jotunnlibtest"));
+            TestAssets = AssetUtils.LoadAssetBundle(Path.Combine(modPath, "JotunnModExample/Assets/Assets/jotunnlibtest"));
             Jotunn.Logger.LogInfo(TestAssets);
 
             // Print Embedded Resources
