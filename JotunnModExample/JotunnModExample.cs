@@ -100,7 +100,6 @@ namespace JotunnModExample
             AddStatusEffects();
             AddCustomItemConversions();
             AddItemsWithConfigs();
-            AddPieceCategories();
             AddMockedItems();
             AddKitbashedPieces();
             AddConePiece();
@@ -118,13 +117,16 @@ namespace JotunnModExample
             // Add a cloned item with a runtime-rendered icon
             PrefabManager.OnVanillaPrefabsAvailable += AddItemsWithRenderedIcons;
 
+            // Create pieces with shaders available and custom categories
+            PrefabManager.OnVanillaPrefabsAvailable += AddPieceCategories;
+
             // Create custom locations and vegetation
             PrefabManager.OnVanillaPrefabsAvailable += AddCustomLocationsAndVegetation;
             ZoneManager.OnVanillaLocationsAvailable += AddClonedVanillaLocationsAndVegetations;
             ZoneManager.OnVanillaLocationsAvailable += ModifyVanillaLocationsAndVegetation;
 
             // Create custom creatures and spawns
-            AddCustomCreaturesAndSpawns();
+            CreatureManager.OnVanillaCreaturesAvailable += AddCustomCreaturesAndSpawns;
             // Hook creature manager to get access to vanilla creature prefabs
             CreatureManager.OnVanillaCreaturesAvailable += ModifyAndCloneVanillaCreatures;
 
@@ -826,6 +828,7 @@ namespace JotunnModExample
             {
                 // Add our test texture to the Unity MeshRenderer
                 var prefab = CP.PiecePrefab;
+                prefab.GetComponent<MeshRenderer>().material.shader = PrefabManager.Cache.GetPrefab<Shader>("Custom/Piece");
                 prefab.GetComponent<MeshRenderer>().material.mainTexture = TestTex;
 
                 PieceManager.Instance.AddPiece(CP);
@@ -846,6 +849,7 @@ namespace JotunnModExample
             {
                 // Add our test texture to the Unity MeshRenderer and make the material color grey
                 var prefab = CP.PiecePrefab;
+                prefab.GetComponent<MeshRenderer>().material.shader = PrefabManager.Cache.GetPrefab<Shader>("Custom/Piece");
                 prefab.GetComponent<MeshRenderer>().material.mainTexture = TestTex;
                 prefab.GetComponent<MeshRenderer>().material.color = Color.grey;
 
@@ -1323,6 +1327,7 @@ namespace JotunnModExample
             lulzItem.ItemPrefab.AddComponent<Rigidbody>();
 
             // Set our lulzcube test texture on the first material found
+            lulzItem.ItemPrefab.GetComponentInChildren<MeshRenderer>().material.shader = PrefabManager.Cache.GetPrefab<Shader>("Custom/Piece");
             lulzItem.ItemPrefab.GetComponentInChildren<MeshRenderer>().material.mainTexture = lulztex;
 
             // Make it smol
