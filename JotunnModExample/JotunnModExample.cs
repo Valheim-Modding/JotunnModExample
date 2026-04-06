@@ -1228,7 +1228,7 @@ namespace JotunnModExample
                 // Stack of lulzcubes to easily spot the instances
                 for (int i = 0; i < 40; i++)
                 {
-                    var lulzCube = Instantiate(lulzCubePrefab, myEikthyrLocation.ZoneLocation.m_prefab.transform);
+                    var lulzCube = Instantiate(lulzCubePrefab, myEikthyrLocation.ZoneLocation.m_prefab.Asset.transform);
                     lulzCube.name = lulzCubePrefab.name;
                     lulzCube.transform.localPosition = new Vector3(0, i + 3, 0);
                     lulzCube.transform.localRotation = Quaternion.Euler(0, i * 30, 0);
@@ -1260,15 +1260,9 @@ namespace JotunnModExample
 
         private void ModifyVanillaLocationsAndVegetation()
         {
-            var lulzCubePrefab = PrefabManager.Instance.GetPrefab("piece_lel");
-
             // Modify existing locations
             var eikhtyrLocation = ZoneManager.Instance.GetZoneLocation("Eikthyrnir");
             eikhtyrLocation.m_exteriorRadius = 20f; //More space around the altar
-
-            var eikhtyrCube = Instantiate(lulzCubePrefab, eikhtyrLocation.m_prefab.transform);
-            eikhtyrCube.name = lulzCubePrefab.name;
-            eikhtyrCube.transform.localPosition = new Vector3(-8.52f, 5.37f, -0.92f);
 
             // Modify existing vegetation
             var raspberryBush = ZoneManager.Instance.GetZoneVegetation("RaspberryBush");
